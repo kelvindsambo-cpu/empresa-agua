@@ -1,47 +1,36 @@
-# Opção 6 — MainFrame, Dashboard, testes e apoio à equipa
+# Membro 6 — Janela principal, Dashboard e demonstração
 
-**Nível:** fácil (na lógica de negócio) + responsabilidade transversal de apoio  
+**Nível:** fácil  
 **Responsável:** [NOME]  
-**Branch sugerida:** `feature/dashboard-interface`
+**Branch:** `interface-dashboard`
 
-## Resultado esperado
+## Resultado
 
-Interface principal navegável, padrões visuais consistentes, Dashboard com dados reais e contributo activo para testes e correcções de usabilidade.
+Uma janela principal com menu para todos os módulos, um Dashboard com números reais e uma base de dados de demonstração pronta a usar.
 
-## Classes e ficheiros
+## Classes / ficheiros
 
 ```text
 view/MainFrame.java
-view/panels/DashboardPanel.java
-controller/DashboardController.java
+view/DashboardPanel.java
 dao/DashboardDAO.java
-view/components/               # componentes reutilizáveis aprovados
-# documentação de screenshots e testes, quando aplicável
+database/03_dados_demo.sql
+docs/guia-de-execucao.md (actualizar)
 ```
 
 ## Tarefas
 
-- [ ] Construir `MainFrame` com menu lateral e conteúdo central em `CardLayout`.
-- [ ] Criar pontos de navegação para os nove módulos, com placeholders apenas enquanto o módulo ainda não estiver pronto.
-- [ ] Garantir que ADMIN/OPERADOR vêem menus adequados à sessão, recebida da Opção 1.
-- [ ] Criar `DashboardPanel` com resumos SQL reais: contagem de clientes, contratos activos, facturas pendentes, reclamações abertas (ajustar consultas ao esquema congelado).
-- [ ] Definir padrões comuns de botões, filtros, tamanhos, tabelas e diálogos.
-- [ ] Ajudar os colegas a ajustar GridLayout, BorderLayout, JTable, JScrollPane, formulários e feedback visual.
-- [ ] Executar testes manuais dos módulos integrados e abrir Issues com resultados reproduzíveis.
-- [ ] Organizar screenshots ilustrativos e verificar documentação de execução.
-- [ ] Rever visualmente os painéis para consistência, sem alterar regras de negócio dos responsáveis.
+- [ ] **Primeiro e cedo:** `MainFrame` com menu lateral (botões) + área central em `CardLayout`, e o método `adicionarModulo(String nome, JPanel painel, boolean soAdmin)`. Publicar em `main` mesmo com painéis vazios, para os colegas encaixarem os seus.
+- [ ] Topo da janela: nome do funcionário e perfil (`Sessao.getUsuarioAutenticado()`) + botão "Sair" que fecha a janela e chama `Main.terminarSessaoEVoltarAoLogin()`.
+- [ ] Ligar o login ao `MainFrame`: em `Main.aoAutenticar` trocar o `JOptionPane` temporário (há um `TODO`) por `new MainFrame().setVisible(true)` — combinar com o Membro 1.
+- [ ] Esconder módulos `soAdmin` quando `!Sessao.isAdmin()`.
+- [ ] `DashboardPanel` com 4 cartões: total de clientes, contratos activos, facturas pendentes, reclamações abertas. Botão "Actualizar". Consultas `SELECT COUNT(*)` no `DashboardDAO`.
+- [ ] `03_dados_demo.sql`: alguns clientes, contratos, contadores e funcionários a mais (fictícios) para a apresentação.
+- [ ] Actualizar o guia de execução com os passos realmente testados (BD → config → admin → `mvn` → login).
+- [ ] Na Fase 3, correr os testes manuais T01–T13 e avisar os colegas dos problemas.
 
-## Como apoiar os outros
+## Demonstração
 
-Combinar com cada colega pequenas subtarefas: arrumar formulário, criar modelo de `JTable`, melhorar filtros, configurar `JScrollPane`, corrigir layout ou documentar casos de teste. Fazer mudanças em PRs atribuídos e coordenados; nunca substituir a autoria dos colegas sem acordo.
+Login → MainFrame; navegar pelos módulos; ADMIN vs OPERADOR; inserir um cliente e ver o Dashboard mudar; logout.
 
-## Critérios de aceitação
-
-- [ ] Troca de painéis não abre dezenas de JFrames.
-- [ ] Dashboard não contém números fictícios fixos no código.
-- [ ] Menus correspondem ao perfil e actualizam após autenticação.
-- [ ] `SwingWorker` (quando necessário) não bloqueia interface.
-- [ ] Pelo menos um registo de teste documentado em cada módulo integrado.
-- [ ] Guia de execução e lista de problemas conhecidos estão actualizados.
-
-**Cuidado:** embora seja a opção mais fácil, o Dashboard exige consultas JDBC e coordenação com os outros módulos.
+**Fora do âmbito:** gráficos, temas configuráveis, componentes Swing personalizados para os outros módulos.

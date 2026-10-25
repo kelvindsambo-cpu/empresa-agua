@@ -1,48 +1,48 @@
-# Opção 5 — Funcionários e reclamações
+# Membro 5 — Funcionários e reclamações
 
-**Nível:** médio  
+**Nível:** fácil/médio  
 **Responsável:** [NOME]  
-**Branch sugerida:** `feature/funcionarios-reclamacoes`
+**Branch:** `funcionarios-reclamacoes`
 
-## Resultado esperado
+## Resultado
 
-Gestão de funcionários pelo ADMIN e tratamento de reclamações por funcionários, incluindo atribuição e encerramento.
+O ADMIN regista e edita funcionários; qualquer funcionário abre reclamações de clientes e acompanha-as até `resolvida`.
 
-## Classes e ficheiros
+## Classes
 
 ```text
-model/Funcionario.java
-model/Reclamacao.java
-dao/FuncionarioDAO.java
-dao/ReclamacaoDAO.java
-controller/FuncionarioController.java
-controller/ReclamacaoController.java
-service/ReclamacaoService.java
-view/panels/FuncionarioPanel.java
-view/panels/ReclamacaoPanel.java
-view/dialogs/FuncionarioDialog.java
-view/dialogs/ReclamacaoDialog.java
+model/Funcionario.java, model/Reclamacao.java
+dao/FuncionarioDAO.java, dao/ReclamacaoDAO.java
+controller/FuncionarioController.java, controller/ReclamacaoController.java
+view/FuncionarioPanel.java, view/FuncionarioDialog.java
+view/ReclamacaoPanel.java, view/ReclamacaoDialog.java
 ```
 
 ## Tarefas
 
-- [ ] CRUD operacional de funcionários (sem apagar os associados a facturas/reclamações).
-- [ ] Validar `cargo` nos valores exactos do esquema: `tecnico_leitura`, `tecnico_manutencao`, `atendimento`, `supervisor`, `administrador`.
-- [ ] Disponibilizar consulta/listagem de técnicos `tecnico_leitura` à Opção 2.
-- [ ] Coordenação com Opção 1 para ligar `funcionario` a `utilizador`; não criar password em `funcionario`.
-- [ ] Criar reclamação associada apenas a `cliente` (não a contrato/contador).
-- [ ] Gerir atribuição de funcionário, estados (`aberta`, `em_tratamento`, `resolvida`) e datas.
-- [ ] Validar que `em_tratamento` requer responsável e `resolvida` requer data de fecho.
-- [ ] Implementar pesquisa por cliente, estado e funcionário responsável.
-- [ ] Testar restrições e permissões (gestão de funcionário apenas ADMIN).
+### Funcionários (só ADMIN)
 
-## Critérios de aceitação
+- [ ] `FuncionarioPanel`: `JTable` (nome, telefone, cargo) + Novo/Editar.
+- [ ] `FuncionarioDialog`: nome, telefone (opcional), cargo (combo com os 5 valores).
+- [ ] `Sessao.exigirAdmin()` no Controller antes de gravar.
+- [ ] `FuncionarioDAO.listarPorCargo(String cargo)` para o Membro 2 (técnicos de leitura).
 
-- [ ] Funcionário criado e pesquisável; cargo válido.
-- [ ] Funcionário com histórico ligado não é apagado.
-- [ ] Reclamação aberta pode estar sem responsável; em tratamento não pode.
-- [ ] Resolver preenche data de fecho coerente.
-- [ ] Opção 2 consegue listar técnicos leitores.
-- [ ] Gestão de funcionários está protegida por permissões no Controller/Service.
+### Reclamações
 
-**Cuidado:** `funcionario.cargo` não é o mesmo que o perfil de acesso `ADMIN`/`OPERADOR`.
+- [ ] `ReclamacaoPanel`: `JTable` (nº, cliente, tipo, estado, abertura, responsável) + filtro por estado.
+- [ ] `ReclamacaoDialog` "Nova": cliente (combo), tipo (combo), descrição. Data de abertura = hoje, estado `aberta`.
+- [ ] Botão "Atribuir": escolher funcionário responsável → estado `em_tratamento`.
+- [ ] Botão "Resolver": estado `resolvida`, `data_fecho` = hoje.
+- [ ] Validar: `em_tratamento` exige responsável; `resolvida` exige data de fecho.
+
+A BD já recusa as mesmas combinações inválidas (`CHECK`).
+
+## Precisa de
+
+Membro 4: `ClienteDAO.listar()` (até lá, consulta temporária).
+
+## Demonstração
+
+Entrar como ADMIN e registar funcionário; mostrar que o OPERADOR não vê o menu; abrir reclamação, atribuir e resolver.
+
+**Fora do âmbito:** apagar funcionários, criar contas de login, pesquisa avançada.

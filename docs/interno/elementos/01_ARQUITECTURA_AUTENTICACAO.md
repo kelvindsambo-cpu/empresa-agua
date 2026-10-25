@@ -1,51 +1,38 @@
-# Opção 1 — Arquitectura, JDBC e autenticação
+# Membro 1 — Base do projecto, JDBC e autenticação
 
-**Nível:** difícil  
-**Responsável:** [NOME]  
-**Branch sugerida:** `feature/autenticacao`
+**Estado:** feito (branch `autenticacao`)  
+**Responsável:** [NOME]
 
-## Resultado esperado
-
-Projecto Maven compila e arranca; JDBC comunica com MySQL; funcionários autorizados fazem login; ADMIN e OPERADOR vêem/acedem apenas às operações permitidas; existe um ponto central para conexão e sessão.
-
-## Classes e ficheiros sob a tua responsabilidade
+## O que já existe
 
 ```text
-pom.xml
-src/main/java/mz/agua/Main.java
-src/main/java/mz/agua/config/DatabaseConnection.java
-src/main/java/mz/agua/model/Usuario.java
-src/main/java/mz/agua/dao/UsuarioDAO.java
-src/main/java/mz/agua/controller/LoginController.java
-src/main/java/mz/agua/service/AutenticacaoService.java
-src/main/java/mz/agua/view/LoginFrame.java
-src/main/java/mz/agua/util/Sessao.java
-# componentes de autorização/perfis, se necessários
-database/02_autenticacao.sql
+pom.xml (JDK 21, driver MariaDB, bcrypt, JUnit 5)
+Main.java                        arranque, login, logout (terminarSessaoEVoltarAoLogin)
+config/DatabaseConnection.java   getConnection, executar, emTransaccao, testarLigacao
+model/Usuario.java, Perfil.java
+dao/UsuarioDAO.java
+service/AutenticacaoService.java, UtilizadorService.java
+controller/LoginController.java
+view/LoginFrame.java
+util/Sessao.java, PasswordHasher.java, CriarAdminInicial.java
+exception/ValidacaoException, PersistenciaException, AcessoNegadoException, AutenticacaoException
+testes: PerfilTest, PasswordHasherTest, SessaoTest, UtilizadorServiceTest
 ```
 
-## Tarefas
+## Falta para os outros conseguirem arrancar
 
-- [ ] Criar `pom.xml`, packages, `.gitignore`, `Main.java` e dependência JDBC.
-- [ ] Definir como criar e fechar Connection e como gerir transacções multi-DAO.
-- [ ] Criar extensão SQL `utilizador`, ligada a `funcionario` por FK única; `username` único, hash de password, perfil e estado.
-- [ ] Implementar autenticação segura (hash apropriado), conta inactiva e saída da sessão.
-- [ ] Implementar controlo de acesso nos Controllers/Services; não apenas ocultar botões.
-- [ ] Confirmar com a Opção 5 métodos de consulta de funcionário.
-- [ ] Definir e publicar contratos de integração com todas as opções.
-- [ ] Rever PRs estruturais (`pom.xml`, schema, packages, Connection).
-- [ ] Testar login válido, inválido, conta inactiva e permissões.
+O código refere ficheiros que **não estão no repositório**. Sem eles ninguém consegue fazer login:
 
-## Dependências
+- [ ] `database/02_autenticacao.sql` — `CREATE TABLE utilizador (...)` usado pelo `UsuarioDAO`.
+- [ ] `application.properties.example` — modelo com `db.url`, `db.user`, `db.password` (sem valores reais).
+- [ ] Instruções no [guia de execução](../../guia-de-execucao.md): como correr `CriarAdminInicial` para criar o primeiro ADMIN.
+- [ ] Apagar `pom21312.xml` se for um ficheiro de teste esquecido.
+- [ ] Abrir Pull Request `autenticacao` → `main`.
 
-Opção 5 fornece `FuncionarioDAO`/modelo; Opção 6 fornece `MainFrame` e navegação. Tu forneces ligação JDBC e sessão a todos.
+## Depois disso
 
-## Critérios de aceitação
+Apoiar os colegas com dúvidas de JDBC/`DatabaseConnection` e rever Pull Requests que toquem em `pom.xml` ou SQL. Não é preciso fazer mais funcionalidades.
 
-- Login consulta efectivamente o MySQL.
-- Password não está em texto simples no esquema, no código ou nos logs.
-- ADMIN/OPERADOR bloqueiam operações mesmo se se tentar invocar o Controller directamente.
-- `DatabaseConnection` é utilizado pelos restantes módulos sem configurações duplicadas.
-- Maven compila a estrutura inicial; não existem credenciais versionadas.
+## Demonstração
 
-**Não fazer:** concentrar todas as funcionalidades num único Controller, alterar entidades de outros membros sem acordo ou criar classes fictícias apenas para a interface parecer funcional.
+Login válido e inválido; ADMIN vê menus que o OPERADOR não vê; logout; explicar `DatabaseConnection` (ligação nova por operação, credenciais fora do código) e o hash da password.
