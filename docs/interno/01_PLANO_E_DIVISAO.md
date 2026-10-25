@@ -1,39 +1,54 @@
-# Divisão da equipa — seis opções já atribuídas
+# Divisão da equipa — plano simplificado
 
-Os nomes devem ser preenchidos pelo responsável do projecto; **não trocar de módulo sem informar a equipa**. A divisão mantém **3 difíceis, 2 médias, 1 fácil**. Pretende-se compatibilizar capacidades com complexidade, não igualar a dificuldade. Carga operacional distribuída com apoio da Opção 6.
+Mantêm-se as mesmas áreas por membro (ninguém troca de módulo), mas **cada módulo foi reduzido ao essencial**: listar numa `JTable`, inserir/editar num formulário e, quando existe, **uma** regra de negócio que vale a pena mostrar na apresentação.
 
-| Opção | Nível | Área principal | Responsável (preencher) |
+| Membro | Área | Nível (novo) | Responsável |
 |---|---|---|---|
-| 1 | Difícil | Arquitectura, JDBC base, autenticação, controlo de acesso | **[NOME 1]** |
-| 2 | Difícil | Tarifas e facturação | **[NOME 2]** |
-| 3 | Difícil | Contratos e pagamentos | **[NOME 3]** |
-| 4 | Médio | Clientes e contadores | **[NOME 4]** |
-| 5 | Médio | Funcionários e reclamações | **[NOME 5]** |
-| 6 | Fácil + apoio | MainFrame, Dashboard, testes manuais e apoio Swing | **[NOME 6]** |
+| 1 | Projecto Maven, `DatabaseConnection`, login, sessão, perfis | — (**feito**) | **[NOME 1]** |
+| 2 | Tarifas + emissão de facturas | Médio | **[NOME 2]** |
+| 3 | Contratos + pagamentos | Médio | **[NOME 3]** |
+| 4 | Clientes + contadores | Fácil/médio | **[NOME 4]** |
+| 5 | Funcionários + reclamações | Fácil/médio | **[NOME 5]** |
+| 6 | `MainFrame` (menu), Dashboard, dados de demonstração, guia de execução | Fácil | **[NOME 6]** |
 
-**Nota:** o coordenador de arquitectura (Opção 1) não é obrigado a escrever os Models dos outros. É responsável pelo esqueleto e pelas decisões partilhadas. Cada um implementa as classes e interfaces do seu módulo.
+## O que cada um demonstra na apresentação
 
-## Entregas demonstráveis
-
-| Opção | Demonstração obrigatória |
+| Membro | Demonstração |
 |---|---|
-| 1 | Login ADMIN/OPERADOR, logout, permissões funcionais e ligação JDBC |
-| 2 | Consultar/gerir tarifas e emitir uma factura com cálculo correcto |
-| 3 | Criar/alterar contrato e registar pagamento parcial sem ultrapassar saldo |
-| 4 | Registar/pesquisar cliente e instalar/trocar contador respeitando unicidade |
-| 5 | Gerir funcionário e reclamação com responsável/estados válidos |
-| 6 | Navegar pelos painéis e mostrar Dashboard com contagens reais + checklist de testes |
+| 1 | Login válido/inválido, ADMIN vs OPERADOR, logout, ligação JDBC central |
+| 2 | Listar/criar tarifa; emitir factura e mostrar o cálculo (`leitura → consumo → valor`) |
+| 3 | Criar contrato e mudar estado; registar pagamento parcial e ver a factura passar a `paga` |
+| 4 | Registar/pesquisar/editar cliente; registar contador num contrato |
+| 5 | Registar/editar funcionário (só ADMIN); abrir reclamação e mudar estado até `resolvida` |
+| 6 | Navegar entre módulos pelo menu; Dashboard com 4 números reais da BD |
 
-## Responsabilidade comum a TODOS
+## Fora do âmbito (não fazer)
 
-- Criar Model, DAO, Controller, View e Service (quando necessário) das suas tarefas.
-- Implementar validações e mensagens de erro úteis.
-- Testar dados válidos, inválidos e relações com outras tabelas.
-- Documentar como testar cada funcionalidade em cada PR.
-- Participar nas revisões de código e aprender a explicar a própria implementação.
+- Multas automáticas, corte e religação automáticos (RN24–31 só na parte do saldo).
+- Editar ou apagar tarifas. Só se **cria** tarifa nova (que fecha automaticamente a vigente do mesmo tipo — ver Membro 2).
+- Troca de contador "automática" (desactivar um e activar outro numa transacção). Basta mudar o estado à mão.
+- Concorrência (`SELECT ... FOR UPDATE`, testes com duas sessões).
+- Anexo C, `log_transacao`, níveis de isolamento.
+- Ecrã de gestão de contas de utilizador (contas criadas pelo `CriarAdminInicial`/SQL do Membro 1).
+- Branch `develop`, GitHub Projects, Issues obrigatórias.
+- `SwingWorker` em todo o lado (só onde já existe, no login).
+- Apagar registos (DELETE). Não há botões "Eliminar".
+- Testes JUnit para tudo — só para o cálculo da factura (ver [`06_TESTES_E_CRITERIOS.md`](06_TESTES_E_CRITERIOS.md)).
 
-## Integração entre módulos
+## Estrutura de cada módulo (igual para todos)
 
-`cliente` → `contrato` → `contador` → `fatura` → `pagamento`; tarifa e técnico leitor alimentam facturação; reclamação liga-se a cliente e funcionário; login associa-se a funcionário.
+Para cada entidade:
 
-Antes de integrar, combinar: como seleccionar entidades por ID, como carregar JComboBox, quem abre o diálogo, como passar dados entre Controllers e como partilhar Connection numa transacção.
+```text
+model/Cliente.java            atributos + getters/setters (sem Swing, sem SQL)
+dao/ClienteDAO.java           listar, buscarPorId, pesquisar, inserir, actualizar
+controller/ClienteController  lê o formulário, valida o básico, chama o DAO, actualiza a tabela
+view/ClientePanel.java        JTable + campo de pesquisa + botões Novo/Editar
+view/ClienteDialog.java       formulário (JDialog modal)
+```
+
+Camada `service/` **só** onde há uma regra que envolve mais de uma tabela: `FaturaService` (Membro 2) e `PagamentoService` (Membro 3). Nos restantes, o Controller chama directamente o DAO.
+
+## Ordem de integração
+
+`cliente` → `contrato` → `contador` → `fatura` → `pagamento`. Para não ficarem à espera uns dos outros, **usem os dados de exemplo do Anexo A** (já há clientes, contratos, contadores, tarifas e funcionários) enquanto o módulo do colega não chega a `main`.

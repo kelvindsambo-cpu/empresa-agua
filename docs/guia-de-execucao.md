@@ -13,13 +13,14 @@ Este documento deve ser completado com **comandos testados**, depois da criaçã
 
 1. Criar cópia de segurança de qualquer base importante: o Anexo A contém `DROP DATABASE IF EXISTS fornecimento_agua`.
 2. Executar o Anexo A **apenas numa instalação/base de desenvolvimento apropriada**.
-3. Executar o script `02_autenticacao.sql` quando estiver revisto e integrado.
-4. **Não misturar** Anexo A com alterações de optimização do Anexo C sem a decisão descrita em [`database/README.md`](../database/README.md).
-5. Verificar uma consulta simples à tabela `cliente` e a existência das tabelas esperadas.
+3. Executar o script `database/02_autenticacao.sql` (tabela `utilizador` do login).
+4. Criar o primeiro ADMIN com a classe `mz.agua.util.CriarAdminInicial`.
+5. **Não aplicar** o Anexo C: a aplicação usa o Anexo A tal como está.
+6. Verificar uma consulta simples à tabela `cliente` e a existência das tabelas esperadas.
 
 ## Configuração JDBC
 
-- O projecto deve fornecer `src/main/resources/application.properties.example` **sem credenciais reais**.
+- Copiar `application.properties.example` para `application.properties` e preencher `db.url`, `db.user` e `db.password` (ou usar as variáveis de ambiente `AGUA_DB_URL`, `AGUA_DB_USER`, `AGUA_DB_PASSWORD`).
 - A configuração local deve ficar fora do controlo de versões (ou usar variáveis de ambiente).
 - A classe `DatabaseConnection` não deve codificar utilizador/palavra-passe no código-fonte.
 

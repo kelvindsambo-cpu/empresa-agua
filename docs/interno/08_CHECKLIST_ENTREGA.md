@@ -1,41 +1,26 @@
-# Checklist final e limpeza de documentação interna
+# Checklist final
 
 ## Antes da entrega
 
-- [ ] `main` tem uma versão estável e demonstrável (sem bugs bloqueantes).
-- [ ] `mvn clean test` funciona em máquina limpa com JDK/Maven definidos.
-- [ ] Existe procedimento reproduzível para preparar a base de desenvolvimento.
-- [ ] Login, clientes, contratos, contadores, tarifas, facturas, pagamentos, reclamações e funcionários cumprem o âmbito acordado.
-- [ ] A separação MVC/DAO é verificável no código.
-- [ ] `SwingWorker` ou abordagem equivalente impede travamentos nos fluxos lentos.
-- [ ] Dados de apresentação são fictícios e não contêm credenciais reais.
-- [ ] README, guia de execução e arquitectura reflectem o código realmente entregue.
-- [ ] Cada elemento sabe demonstrar o seu módulo e explicar JDBC, eventos Swing e classes.
+- [ ] `main` compila (`mvn clean test`) e a aplicação abre.
+- [ ] Guia de execução testado numa máquina de outro membro (BD do zero até ao login).
+- [ ] O fluxo login → cliente → contrato → contador → factura → pagamento → Dashboard funciona.
+- [ ] Testes manuais T01–T13 feitos ([`06_TESTES_E_CRITERIOS.md`](06_TESTES_E_CRITERIOS.md)).
+- [ ] Não há SQL nas Views; não há passwords no código nem no Git.
+- [ ] README e `docs/` descrevem o que foi realmente feito.
+- [ ] Dados de demonstração fictícios.
 
-## O que pode ser removido
+## Apresentação (cada membro, 2–3 minutos)
 
-**Pasta temporária opcional:** `docs/interno/` (distribuição de tarefas, progressos, regras internas e notas de organização). A `.github/ISSUE_TEMPLATE` pode ficar ou ser removida; os Issue/PR históricos podem manter-se no GitHub.
+1. Mostrar a sua funcionalidade na aplicação (um caso que funciona + um erro controlado).
+2. Abrir o código e explicar o caminho **View → Controller → DAO → JDBC → MySQL** com um exemplo.
+3. Explicar porque usa `PreparedStatement`.
+4. Membros 2 e 3: explicar o cálculo/regra e a transacção (`DatabaseConnection.emTransaccao`).
 
-**O que normalmente deve ficar:** `README.md`, `docs/arquitectura.md`, `docs/casos-de-uso.md`, `docs/guia-de-execucao.md`, scripts SQL realmente necessários, código-fonte, `pom.xml` e `.gitignore`.
+## Limpeza (opcional)
 
-### Exemplo de remoção na fase final
+`docs/interno/` pode ser removida no fim (`git rm -r docs/interno`). Isto não apaga o histórico do Git, por isso nunca versionar dados sensíveis.
 
-```bash
-git rm -r docs/interno
-git commit -m "docs: remover notas internas de coordenação"
-```
+## Autoria
 
-**Isto só retira os ficheiros do estado actual da branch; eles continuam acessíveis no histórico Git.** Se houver informações sensíveis, não as publicar desde o início. Não reescrever histórico por iniciativa própria sem acordo e sem compreender o efeito na equipa.
-
-## Preparação da defesa
-
-- Cada elemento apresenta um caso de uso do seu módulo.
-- Explicar o caminho View → Controller → Service → DAO → JDBC → MySQL.
-- Mostrar validação no Java e protecção na BD (CHECK, UNIQUE, FK, trigger) quando aplicável.
-- Explicar como os `PreparedStatement` evitam concatenação de SQL.
-- Demonstrar erros controlados (não apenas casos felizes).
-- Mostrar que não há valores falsos no Dashboard.
-
-## Revisão de autoria e colaboração
-
-Cada membro é responsável pelos próprios commits e alterações. Não inserir nomes de pessoas ou ferramentas como autor/coautor sem contribuição real; não incluir marcas ou menções a assistentes no código e na documentação final. Manter histórico íntegro da colaboração e respeitar os requisitos académicos aplicáveis.
+Cada membro é responsável pelos próprios commits. Não inserir nomes de pessoas ou ferramentas como autor/co-autor sem contribuição real, nem marcas de ferramentas no código ou na documentação final.

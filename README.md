@@ -2,20 +2,20 @@
 
 Aplicação **desktop em Java** para funcionários de uma empresa de fornecimento de água na **Província de Maputo (exclui a Cidade de Maputo)**. O negócio e o esquema relacional têm origem no projecto de Base de Dados II.
 
-> **Estado:** em preparação/desenvolvimento. Este repositório não corresponde ainda a uma aplicação concluída. As funcionalidades abaixo são o **âmbito planeado**, não uma afirmação de implementação.
+> **Estado:** em desenvolvimento. Já existe a base do projecto (Maven, ligação JDBC, login e perfis); os restantes módulos estão a ser implementados. As funcionalidades abaixo são o **âmbito planeado**.
 
 ## Tecnologias e objectivo
 
 - Java e Java Swing: interface desktop (JFrame, JPanel, JTable, JDialog, eventos e navegação).
 - JDBC e MySQL 8+: persistência real de dados, consultas parametrizadas e transacções.
 - MVC + DAO; camada Service para regras e operações envolvendo mais de uma entidade.
-- Maven: construção e dependências; SwingWorker para consultas lentas fora da Event Dispatch Thread (EDT).
+- Maven: construção e dependências.
 
 **Utilizadores da aplicação:** apenas funcionários, com perfis `ADMIN` e `OPERADOR` (perfis aplicacionais, diferentes dos cargos existentes na tabela `funcionario`). Clientes não fazem login.
 
 ## Funcionalidades previstas
 
-Autenticação; clientes; contratos; contadores; tarifas; facturação; pagamentos; reclamações; funcionários/contas; Dashboard. As leituras são atributos da `fatura`, não uma tabela separada. Pagamentos por M-Pesa/e-Mola são **registos** de pagamentos, não integração com os provedores.
+Autenticação; clientes; contratos; contadores; tarifas; facturação; pagamentos; reclamações; funcionários; Dashboard. As leituras são atributos da `fatura`, não uma tabela separada. Pagamentos por M-Pesa/e-Mola são **registos** de pagamentos, não integração com os provedores.
 
 ## Documentação
 

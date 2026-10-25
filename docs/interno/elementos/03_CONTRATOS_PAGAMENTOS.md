@@ -1,55 +1,53 @@
-# Opção 3 — Contratos e pagamentos
+# Membro 3 — Contratos e pagamentos
 
-**Nível:** difícil  
+**Nível:** médio  
 **Responsável:** [NOME]  
-**Branch sugerida:** `feature/contratos-pagamentos`
+**Branch:** `contratos-pagamentos`
 
-## Resultado esperado
+## Resultado
 
-Criar/consultar contratos e efectuar pagamentos totais ou parciais respeitando os estados, as FKs e a concorrência.
+Criar contratos e mudar o seu estado; registar pagamentos (totais ou parciais) de facturas, sem ultrapassar o saldo.
 
-## Classes e ficheiros
+## Classes
 
 ```text
-model/Contrato.java
-model/Pagamento.java
-dao/ContratoDAO.java
-dao/PagamentoDAO.java
-service/ContratoService.java
+model/Contrato.java, model/Pagamento.java
+dao/ContratoDAO.java, dao/PagamentoDAO.java
 service/PagamentoService.java
-controller/ContratoController.java
-controller/PagamentoController.java
-view/panels/ContratoPanel.java
-view/panels/PagamentoPanel.java
-view/dialogs/ContratoDialog.java
-view/dialogs/RegistoPagamentoDialog.java
+controller/ContratoController.java, controller/PagamentoController.java
+view/ContratoPanel.java, view/ContratoDialog.java
+view/PagamentoPanel.java, view/PagamentoDialog.java
 ```
 
 ## Tarefas
 
-- [ ] Criar Models exactamente do Anexo A.
-- [ ] Implementar CRUD operacional de contratos (criar, listar, pesquisar, alterar estados permitidos).
-- [ ] Validar `tipo_contrato`, datas e RN05: contrato `terminado` tem `data_fim` e não volta a activo.
-- [ ] Coordenar primeira criação cliente+contrato com Opção 4.
-- [ ] Implementar selecção de factura, apresentação de valor, total já pago e saldo.
-- [ ] Implementar registo de pagamento JDBC **transaccional**: bloquear factura `SELECT ... FOR UPDATE`, recalcular saldo, validar, inserir `pagamento`, actualizar estado se pago, `commit`; em erro `rollback`.
-- [ ] Implementar RN38: `registado_por = NULL` para `mpesa` e `emola`, preenchido nos outros métodos.
-- [ ] Garantir número único de recibo e proibir pagamento acima do saldo ou de factura paga.
-- [ ] Discutir com Opção 2 a origem do saldo e diferenças entre Anexo A e C.
-- [ ] Testar pagamentos parciais, recibo duplicado, pagamento exacto e concorrente.
-- [ ] Definir com a equipa o alcance das multas e da mudança automática de estados.
+### Contratos
 
-## Integrações
+- [ ] `ContratoPanel`: `JTable` (nº, cliente, tipo, estado, início, bairro) + filtro por estado.
+- [ ] `ContratoDialog` "Novo": escolher cliente (combo), tipo, data de início, morada de fornecimento (rua, nº porta, quarteirão, bairro). Estado inicial `activo`.
+- [ ] Botão "Mudar estado": combo `activo`/`suspenso`/`cortado`/`terminado`. Se `terminado`, pedir data de fim. Contrato já `terminado` não muda mais.
+- [ ] `ContratoDAO.listarActivos()` e `buscarPorId(int)` para os Membros 2 e 4.
 
-- Opção 4: clientes/contadores; Opção 2: facturas e tarifas; Opção 5: funcionário que regista; Opção 1: sessão JDBC; Opção 6: menu.
+### Pagamentos
 
-## Critérios de aceitação
+- [ ] `PagamentoPanel`: lista de facturas pendentes (do `FaturaDAO` do Membro 2) com valor, total pago e saldo; por baixo, os pagamentos da factura seleccionada.
+- [ ] `PagamentoDialog`: valor, data, método (combo), número de recibo.
+- [ ] `PagamentoService.registar(...)` dentro de `DatabaseConnection.emTransaccao`:
+  1. calcular saldo = `valor_base + valor_multa - SUM(pagamento.valor)`;
+  2. recusar se valor ≤ 0 ou valor > saldo;
+  3. `registado_por` = `Sessao.getIdFuncionarioAutenticado()` para `dinheiro`/`transferencia`/`cartao`, `NULL` para `mpesa`/`emola`;
+  4. inserir pagamento;
+  5. se o saldo ficar 0, `UPDATE fatura SET estado_fatura = 'paga'`.
+- [ ] `PagamentoDAO.totalPago(int idFatura)`.
 
-- [ ] Contratos associados a clientes válidos, datas consistentes e estados legais.
-- [ ] Pagamentos parciais mantêm saldo positivo; último pagamento fecha saldo e marca factura paga.
-- [ ] Duas operações concorrentes nunca ultrapassam o saldo.
-- [ ] Métodos móveis/canais ao balcão cumprem o CHECK RN38.
-- [ ] O histórico de pagamentos existe e não é apagado nem alterado (RN40).
-- [ ] Sem SQL na View nem consultas bloqueantes na EDT.
+A BD já recusa: recibo repetido, valor ≤ 0, `registado_por` errado para o método.
 
-**Cuidado:** `saldo_em_divida` não é uma coluna em Anexo A; só existe como coluna gerada se a equipa aplicar Anexo C.
+## Precisa de
+
+Membro 4: `ClienteDAO.listar()`; Membro 2: `FaturaDAO.listarPendentes()`. Até estarem em `main`, usar consultas próprias temporárias.
+
+## Demonstração
+
+Criar contrato para um cliente; tentar terminar sem data de fim; pagar parte de uma factura, depois o resto, e ver a factura passar a `paga`; tentar pagar acima do saldo.
+
+**Fora do âmbito:** `SELECT ... FOR UPDATE`/concorrência, multas, corte/religação automáticos, alterar/apagar pagamentos.

@@ -1,55 +1,37 @@
-# Tarefas, fases e dependências
+# Tarefas e fases
 
-## Etapa 0 — decisões comuns (toda a equipa)
+## Fase 0 — arranque (todos, meio dia)
 
-- [ ] Preencher nomes/responsabilidades.
-- [ ] Fixar JDK, Maven, MySQL e política de configuração local.
-- [ ] Decidir se a aplicação usa **Anexo A puro** (recomendação inicial) ou A+C.
-- [ ] Congelar nomes, tipos e assinaturas dos métodos entre módulos.
-- [ ] Definir `utilizador`/perfis e acesso inicial de teste.
-- [ ] Estabelecer padrões de Swing (look & feel, dimensões, formulários).
+- [ ] Membro 1 integra a branch `autenticacao` em `main`, com `database/02_autenticacao.sql` e `application.properties.example` (ver [`elementos/01_ARQUITECTURA_AUTENTICACAO.md`](elementos/01_ARQUITECTURA_AUTENTICACAO.md)).
+- [ ] Cada membro: importa o Anexo A + `02_autenticacao.sql`, cria o admin inicial e consegue fazer login.
+- [ ] Membro 6 publica cedo um `MainFrame` vazio com o método `adicionarModulo(...)`, para os outros encaixarem os painéis.
+- [ ] Preencher os nomes em [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md).
 
-## Etapa 1 — base compilável (Opção 1 + apoio 6)
+## Fase 1 — o CRUD simples de cada um (em paralelo)
 
-- [ ] Criar repositório, `pom.xml`, `.gitignore` e packages.
-- [ ] Implementar `Main`, `DatabaseConnection` e teste básico JDBC.
-- [ ] Criar Models/assinaturas acordadas, sem multiplicar lógica duplicada.
-- [ ] Preparar `MainFrame`/navegação com painéis vazios temporários.
+- [ ] Membro 2: `Tarifa` (listar + criar).
+- [ ] Membro 3: `Contrato` (listar, criar, mudar estado).
+- [ ] Membro 4: `Cliente` (listar, pesquisar, criar, editar).
+- [ ] Membro 5: `Funcionario` (listar, criar, editar; só ADMIN).
+- [ ] Membro 6: `MainFrame` com menu + Dashboard com 4 contagens.
 
-## Etapa 2 — primeiros casos de uso em paralelo
+Ao terminar: Pull Request para `main`.
 
-- [ ] Opção 1: login/logout, perfis e sessão.
-- [ ] Opção 4: CRUD cliente com JTable e validações.
-- [ ] Opção 5: CRUD funcionário e reclamações simples.
-- [ ] Opção 6: Dashboard com consultas reais disponíveis e auxílio aos formulários.
-- [ ] Opção 2: `Tarifa`, `TarifaDAO`, gestão e testes de vigência.
-- [ ] Opção 3: `Contrato`, `ContratoDAO`, consultas e alterações de estado.
+## Fase 2 — a segunda entidade de cada um
 
-## Etapa 3 — relações e operações complexas
+- [ ] Membro 2: emitir `Fatura` + listar facturas.
+- [ ] Membro 3: registar `Pagamento` + ver saldo.
+- [ ] Membro 4: registar `Contador` num contrato + mudar estado.
+- [ ] Membro 5: `Reclamacao` (abrir, atribuir responsável, resolver).
+- [ ] Membro 6: script de dados de demonstração + guia de execução testado.
 
-- [ ] Opção 4: contador ligado ao contrato; troca de contador.
-- [ ] Opção 2: `FaturaService`/`FaturaDAO`, cálculo de consumo e emissão.
-- [ ] Opção 3: pagamento transaccional e saldo consistente.
-- [ ] Opção 5: atribuir e resolver reclamações.
-- [ ] Opção 1: autorização real em Controller/Service e suporte técnico à integração.
+Ao terminar: Pull Request para `main`.
 
-## Etapa 4 — integração e testes
+## Fase 3 — integração e ensaio (todos)
 
-- [ ] Fazer login → seleccionar cliente → consultar contrato → contador → factura → pagamento.
-- [ ] Verificar restrições de autenticação, tarifa, estados, leituras e pagamentos.
-- [ ] Testar erros SQL sem bloquear Swing.
-- [ ] Testar concorrência de pagamentos, com duas sessões/threads se o grupo tiver ambiente adequado.
-- [ ] Rever permissões do Dashboard e menus.
+- [ ] Percorrer o fluxo: login → cliente → contrato → contador → factura → pagamento → Dashboard.
+- [ ] Correr os testes manuais de [`06_TESTES_E_CRITERIOS.md`](06_TESTES_E_CRITERIOS.md).
+- [ ] `mvn clean test` passa em `main`.
+- [ ] Cada membro ensaia a sua demonstração (2–3 minutos).
 
-## Etapa 5 — entrega
-
-- [ ] Confirmar `mvn clean test`, arranque e execução em máquina limpa.
-- [ ] Actualizar README e documentação de execução.
-- [ ] Preparar dados fictícios reproduzíveis de demonstração.
-- [ ] Remover documentação interna temporária **se essa for a decisão da equipa**.
-- [ ] Rever histórico para evitar segredos; remover ficheiros não apaga commits antigos.
-- [ ] Tag/release estável em `main` e ensaio de apresentação por cada elemento.
-
-## Prioridade, não duração fixa
-
-Uma etapa pode começar antes de outra terminar se os contratos estiverem acordados. Nenhum elemento deve esperar pelos outros para construir a sua própria View ou escrever testes unitários. Integrações pequenas e frequentes são preferíveis a uma junção final de seis branches enormes.
+Não há durações fixas: uma fase pode começar antes de outra acabar. Usem os dados de exemplo do Anexo A para não ficarem à espera dos colegas.

@@ -1,51 +1,25 @@
-# Contratos entre módulos (API interna proposta)
+# O que cada módulo precisa dos outros (versão curta)
 
-**Objectivo:** evitar que seis elementos inventem assinaturas incompatíveis. Estes métodos são **propostas a validar numa reunião curta antes de programar**; após aprovação, qualquer mudança deve passar por revisão.
+Regra geral: **se precisas de dados de outra tabela só para preencher uma `JComboBox`, pede ao dono o método abaixo.** Se o método ainda não estiver em `main`, escreve temporariamente a consulta no teu DAO e troca-a quando o colega integrar — não fiques à espera.
 
-## Princípio de colaboração
+Todos os DAO recebem a `Connection` no construtor (ver [`02_PADROES_CODIGO.md`](02_PADROES_CODIGO.md)).
 
-As Views trabalham com IDs seleccionados e objectos Model, não com SQL de outro módulo. O Controller usa Service/DAO do dono do módulo. O DAO pode receber uma `Connection` criada pela camada de serviço, permitindo que vários DAOs participem na mesma transacção JDBC.
-
-**Convenção proposta de ciclo de ligação:** `DatabaseConnection.getConnection()` devolve uma conexão nova. Serviços de operações compostas obtêm a conexão, criam os DAOs necessários com ela, controlam commit/rollback e garantem o fecho. Serviços simples podem chamar um DAO com Connection própria. **Não criar diferentes modelos de gestão de Connection por módulo.**
-
-## Interfaces de leitura que outros módulos precisam
-
-| Dono | Quem consome | Operação (assinatura conceptual) |
+| Dono | Método | Quem usa |
 |---|---|---|
-| Opção 4 (Clientes) | 3, 5, 6 | `buscarClientePorId(int id)`; `pesquisarClientes(String termo)` |
-| Opção 3 (Contratos) | 2, 4 | `buscarContratoPorId(int id)`; `listarContratosActivos()`; `listarPorCliente(int idCliente)` |
-| Opção 4 (Contadores) | 2, 3 | `buscarContadorActivo(int idContrato)`; `buscarContadorPorId(int id)` |
-| Opção 5 (Funcionários) | 1, 2, 3 | `buscarFuncionarioPorId(int id)`; `listarTecnicosLeitura()` |
-| Opção 2 (Tarifas) | 2 (Factura) | `buscarTarifaVigente(String tipoContrato, LocalDate dataLeitura)` |
-| Opção 2 (Facturas) | 3, 6 | `buscarFaturaPorId(int id)`; `listarFaturasPorContrato(int idContrato)`; `obterLeituraAnterior(int idContador)` |
-| Opção 3 (Pagamentos) | 2, 6 | `obterTotalPago(int idFatura)`; `obterSaldo(int idFatura)` |
-| Opção 1 (Sessão) | Todos | `getFuncionarioAutenticado()`; `isAdmin()`; `terminarSessao()` |
-| Opção 6 (Navegação) | Todos | `abrirModulo(String chave)` e convenção dos IDs de cartões |
+| Membro 4 | `ClienteDAO.listar()` / `buscarPorId(int)` | 3 (contrato), 5 (reclamação) |
+| Membro 3 | `ContratoDAO.listarActivos()` / `buscarPorId(int)` | 2 (factura), 4 (contador) |
+| Membro 4 | `ContadorDAO.buscarActivoPorContrato(int idContrato)` | 2 (factura) |
+| Membro 5 | `FuncionarioDAO.listarPorCargo(String cargo)` | 2 (técnicos `tecnico_leitura`), 5 |
+| Membro 2 | `TarifaDAO.buscarVigente(String tipoContrato, LocalDate data)` | 2 |
+| Membro 2 | `FaturaDAO.listarPendentes()` / `buscarPorId(int)` | 3 (pagamento) |
+| Membro 3 | `PagamentoDAO.totalPago(int idFatura)` | 3 |
+| Membro 6 | `MainFrame.adicionarModulo(String nome, JPanel painel, boolean soAdmin)` | todos |
+| Membro 1 | `Sessao.isAdmin()`, `Sessao.exigirAdmin()`, `Sessao.getIdFuncionarioAutenticado()` | todos |
 
-As assinaturas finais devem indicar tipos de retorno (`Optional<T>`, `List<T>`, `BigDecimal`, etc.), tipos de excepção e onde o `Connection` é recebido. **Não tratar esta tabela como código pronto para compilar.**
+Os métodos devolvem `List<Modelo>` ou o `Modelo` (ou `null`/`Optional` se não existir — o dono escolhe e documenta no Javadoc).
 
-## Contratos de dados críticos
+## Três factos que evitam confusões
 
-### Tarifa
-
-`tipo_contrato` é `'residencial'` ou `'comercial'`. A tarifa válida em `data_leitura` satisfaz `data_inicio <= data` e `(data_fim IS NULL OR data_fim >= data)`. `data_fim` é inclusiva; não criar sobreposição de intervalos. Tarifas históricas usadas em facturas não mudam retroactivamente.
-
-### Factura
-
-A emissão precisa de contrato activo, contador activo, período e técnico de leitura; a leitura anterior vem da factura precedente ou da leitura inicial. Não existem `consumo_m3`, `valor_pago`, `valor_total` nem `saldo_em_divida` persistidos no esquema-base. A Opção 2 disponibiliza dados necessários para a Opção 3 pagar a factura.
-
-### Pagamento
-
-O saldo deve ser recalculado dentro da transacção após bloquear a factura (`SELECT ... FOR UPDATE`). Nunca confiar só no saldo mostrado anteriormente na UI. No Anexo A, soma de `pagamento.valor` alimenta o saldo, mas o Anexo C muda a estratégia — consultar [`database/README.md`](../../database/README.md).
-
-### Funcionário vs Utilizador
-
-`funcionario.cargo` determina funções de negócio como técnico de leitura. `utilizador.perfil` determina autorização para aceder à aplicação. São conceitos independentes.
-
-## Regras de integração
-
-1. Abrir Issue para dependência ainda não definida.
-2. Publicar exemplos de entradas, saídas e erros.
-3. Rever com o responsável consumidor **antes** de mudar interface já usada.
-4. Preferir IDs/Models estáveis; não passar referências a componentes Swing entre módulos.
-5. Integrar alterações pequenas, não esperar pelos seis módulos terminados.
+- **Tarifa vigente:** `tipo_contrato = ?` e `data_inicio <= data` e `(data_fim IS NULL OR data_fim >= data)`.
+- **Saldo de uma factura:** `valor_base + valor_multa - SUM(pagamento.valor)`. Não existe coluna `saldo` nem `valor_pago` no Anexo A.
+- **Cargo ≠ perfil:** `funcionario.cargo` (ex.: `tecnico_leitura`) é do negócio; `ADMIN`/`OPERADOR` é do login.

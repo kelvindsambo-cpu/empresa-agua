@@ -1,43 +1,49 @@
-# LEIAM PRIMEIRO — Guia interno da equipa de POO II
+# LEIAM PRIMEIRO — Guia interno da equipa de POO II (versão simplificada)
 
-**Uso:** documento temporário de coordenação. A equipa já escolheu/distribuiu as seis opções; preencher os nomes em [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md). Não é necessário entregar esta pasta com o projecto final.
+**Uso:** documento temporário de coordenação. Não é preciso entregá-lo com o projecto final.
+
+> **Mudança de plano:** a equipa decidiu fazer o **mínimo apresentável, mas bem feito**. Cortámos tudo o que era avançado (concorrência, multas automáticas, gestão de vigências, Anexo C, `develop`, etc.). O que ficou está descrito aqui e em [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md). Se algo não estiver nestes documentos, **não é para fazer**.
 
 ## O que estamos a construir
 
-Uma **aplicação desktop Java Swing**, ligada por JDBC a MySQL, com MVC + DAO. Negócio: fornecimento de água na Província de Maputo. A aplicação é **só para funcionários**, divididos em perfis de acesso `ADMIN`/`OPERADOR`. Clientes são registados, mas não fazem login.
+Uma **aplicação desktop Java Swing**, ligada por JDBC a MySQL/MariaDB, organizada em **MVC + DAO**. Negócio: fornecimento de água na Província de Maputo. Só funcionários usam a aplicação (perfis `ADMIN` e `OPERADOR`); clientes não fazem login.
 
-O esquema vem do Anexo A de BD II e as regras do minimundo. São oito entidades principais: `cliente`, `contrato`, `contador`, `tarifa`, `fatura`, `pagamento`, `funcionario`, `reclamacao`; duas tabelas técnicas: `log_auditoria`, `log_transacao`. A autenticação requer a nova tabela `utilizador`.
+Base de dados: **Anexo A de BD II, tal como está** (mais a tabela `utilizador` do login). As regras mais importantes já estão protegidas na BD por `CHECK`, `UNIQUE`, `FK` e triggers — aproveitamos isso em vez de repetir tudo em Java.
+
+## Estado actual
+
+| Membro | Área | Estado |
+|---|---|---|
+| 1 | Base do projecto, ligação JDBC, login, sessão | **Feito** (branch `autenticacao`) |
+| 2 | Tarifas e facturas | Por fazer |
+| 3 | Contratos e pagamentos | Por fazer |
+| 4 | Clientes e contadores | Por fazer |
+| 5 | Funcionários e reclamações | Por fazer |
+| 6 | Janela principal (menu), Dashboard, dados de demonstração | Por fazer |
 
 ## Ler por esta ordem
 
-1. [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md) — responsabilidade de cada elemento.
-2. [O teu documento individual](elementos/) — o que fazer, entregar e testar.
-3. [`07_DADOS_E_REGRAS.md`](07_DADOS_E_REGRAS.md) — nomes reais das colunas e principais RN.
-4. [`02_PADROES_CODIGO.md`](02_PADROES_CODIGO.md) — convenções de Java/Swing/JDBC.
-5. [`03_CONTRATOS_INTEGRACAO.md`](03_CONTRATOS_INTEGRACAO.md) — métodos e dependências a acordar.
-6. [`04_GIT_GITHUB.md`](04_GIT_GITHUB.md) — branches, Issues e Pull Requests.
-7. [`05_TAREFAS_E_FASES.md`](05_TAREFAS_E_FASES.md) — sequência de trabalho.
-8. [`06_TESTES_E_CRITERIOS.md`](06_TESTES_E_CRITERIOS.md) — o que significa terminar uma tarefa.
-9. [`08_CHECKLIST_ENTREGA.md`](08_CHECKLIST_ENTREGA.md) — preparação da apresentação e limpeza final.
-10. [`09_DECISOES_PENDENTES.md`](09_DECISOES_PENDENTES.md) — dúvidas a resolver **antes** de criar código incompatível.
+1. [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md) — o que cada um faz e o que fica de fora.
+2. [O teu documento individual](elementos/) — tarefas e como demonstrar.
+3. [`02_PADROES_CODIGO.md`](02_PADROES_CODIGO.md) — **como usar o que o Membro 1 já fez** (ligação, sessão, excepções) e um exemplo de DAO.
+4. [`07_DADOS_E_REGRAS.md`](07_DADOS_E_REGRAS.md) — nomes das colunas e regras que entram.
+5. [`03_CONTRATOS_INTEGRACAO.md`](03_CONTRATOS_INTEGRACAO.md) — os poucos métodos que um módulo precisa do outro.
+6. [`04_GIT_GITHUB.md`](04_GIT_GITHUB.md) — branch, commit, Pull Request.
+7. [`05_TAREFAS_E_FASES.md`](05_TAREFAS_E_FASES.md), [`06_TESTES_E_CRITERIOS.md`](06_TESTES_E_CRITERIOS.md), [`08_CHECKLIST_ENTREGA.md`](08_CHECKLIST_ENTREGA.md), [`09_DECISOES_PENDENTES.md`](09_DECISOES_PENDENTES.md).
 
-## Regras que ninguém pode ignorar
+## Regras que ninguém pode ignorar (só estas)
 
-- **Não começar por seis implementações incompatíveis:** congelar nomes de classes, tipos de dados e assinaturas de integração.
-- Cada elemento entrega o módulo completo: Model + DAO + Controller + painel Swing + testes/documentação do módulo.
-- O responsável pela Opção 6 apoia os outros na interface, testes e documentação; **não** substitui a implementação dos módulos.
-- Nunca criar a tabela `leitura`: a leitura está em `fatura`.
-- Nunca pôr SQL dentro de `JPanel`/`JFrame`.
-- Nunca fazer commits directamente em `main`; seguir o processo de PR.
-- Não editar Anexo A, nem aplicar Anexo C, sem decisão colectiva.
-- Não versionar credenciais, ficheiros locais nem dados pessoais reais.
+1. **Sem SQL em `JPanel`/`JFrame`/`JDialog`.** SQL só nos DAO.
+2. **Sempre `PreparedStatement`** para valores vindos do utilizador.
+3. **Ligação sempre por `DatabaseConnection`** (do Membro 1); nada de `DriverManager` noutros sítios.
+4. **Dinheiro em `BigDecimal`**, nunca `double`.
+5. Não criar a tabela `leitura`: a leitura está em `fatura`.
+6. Não alterar o Anexo A nem o `pom.xml` sem avisar o grupo.
+7. Não pôr passwords da BD no código nem no Git.
+8. Cada um trabalha na sua branch e entra em `main` por Pull Request.
 
-## O que cada pessoa deve fazer no primeiro dia
+## Primeiro dia de cada membro
 
-1. Confirmar a sua opção e colocar o nome no quadro de atribuições.
-2. Ler o guia individual e identificar as suas dependências.
-3. Configurar Git, JDK, Maven e MySQL da versão escolhida.
-4. Criar as Issues que lhe pertencem, com resultados verificáveis.
-5. Trabalhar primeiro nos contratos/interfaces e classes Model acordados.
-
-**Importante:** esta documentação é um plano. Ao executar, actualizar os checklists e as decisões; não assumir que o código já existe.
+1. Ler o seu documento individual.
+2. Fazer *pull* de `main` (depois de o Membro 1 integrar a `autenticacao`), configurar a BD local e conseguir fazer login.
+3. Criar a sua branch e começar pelo **Model + DAO** da entidade mais simples do seu módulo.

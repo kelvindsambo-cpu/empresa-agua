@@ -2,8 +2,7 @@
 
 Descrever o que foi alterado e para que caso de uso/Issue serve.
 
-**Issue:** #___  
-**Opção responsável:** ___  
+**Membro responsável:** ___  
 **Tipo:** funcionalidade / correcção / documentação / refactor
 
 ## Alterações
@@ -25,6 +24,5 @@ Capturas de ecrã (quando houver Swing) ou resultados de testes, sem credenciais
 - [ ] JDBC usa parâmetros (`PreparedStatement`) e fecha recursos.
 - [ ] Não adiciona credenciais ou ficheiros gerados.
 - [ ] Regras de negócio verificadas.
-- [ ] Dependências e assinaturas entre módulos revistas.
 - [ ] Testes de sucesso e de erro executados.
 - [ ] Não alterei esquema SQL nem `pom.xml` sem aviso à equipa.

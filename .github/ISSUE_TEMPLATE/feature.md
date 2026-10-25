@@ -10,7 +10,7 @@ labels: enhancement
 ## Caso de uso / regras RN
 
 
-## Responsável e opção
+## Membro responsável
 
 
 ## Ficheiros/classes a alterar

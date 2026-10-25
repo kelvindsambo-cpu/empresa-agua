@@ -1,4 +1,4 @@
-# MANUAL CONSOLIDADO DA EQUIPA — POO II
+# MANUAL CONSOLIDADO DA EQUIPA — POO II (plano simplificado)
 
 > Versão de leitura numa só página. Os mesmos conteúdos estão nos ficheiros individuais de `docs/` e `docs/interno/`; em caso de diferença, prevalecem os ficheiros individuais.
 
@@ -7,95 +7,114 @@
 
 <!-- Ficheiro: docs/interno/00_COMECAR_AQUI.md -->
 
-# LEIAM PRIMEIRO — Guia interno da equipa de POO II
+# LEIAM PRIMEIRO — Guia interno da equipa de POO II (versão simplificada)
 
-**Uso:** documento temporário de coordenação. A equipa já escolheu/distribuiu as seis opções; preencher os nomes em [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md). Não é necessário entregar esta pasta com o projecto final.
+**Uso:** documento temporário de coordenação. Não é preciso entregá-lo com o projecto final.
+
+> **Mudança de plano:** a equipa decidiu fazer o **mínimo apresentável, mas bem feito**. Cortámos tudo o que era avançado (concorrência, multas automáticas, gestão de vigências, Anexo C, `develop`, etc.). O que ficou está descrito aqui e em [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md). Se algo não estiver nestes documentos, **não é para fazer**.
 
 ## O que estamos a construir
 
-Uma **aplicação desktop Java Swing**, ligada por JDBC a MySQL, com MVC + DAO. Negócio: fornecimento de água na Província de Maputo. A aplicação é **só para funcionários**, divididos em perfis de acesso `ADMIN`/`OPERADOR`. Clientes são registados, mas não fazem login.
+Uma **aplicação desktop Java Swing**, ligada por JDBC a MySQL/MariaDB, organizada em **MVC + DAO**. Negócio: fornecimento de água na Província de Maputo. Só funcionários usam a aplicação (perfis `ADMIN` e `OPERADOR`); clientes não fazem login.
 
-O esquema vem do Anexo A de BD II e as regras do minimundo. São oito entidades principais: `cliente`, `contrato`, `contador`, `tarifa`, `fatura`, `pagamento`, `funcionario`, `reclamacao`; duas tabelas técnicas: `log_auditoria`, `log_transacao`. A autenticação requer a nova tabela `utilizador`.
+Base de dados: **Anexo A de BD II, tal como está** (mais a tabela `utilizador` do login). As regras mais importantes já estão protegidas na BD por `CHECK`, `UNIQUE`, `FK` e triggers — aproveitamos isso em vez de repetir tudo em Java.
+
+## Estado actual
+
+| Membro | Área | Estado |
+|---|---|---|
+| 1 | Base do projecto, ligação JDBC, login, sessão | **Feito** (branch `autenticacao`) |
+| 2 | Tarifas e facturas | Por fazer |
+| 3 | Contratos e pagamentos | Por fazer |
+| 4 | Clientes e contadores | Por fazer |
+| 5 | Funcionários e reclamações | Por fazer |
+| 6 | Janela principal (menu), Dashboard, dados de demonstração | Por fazer |
 
 ## Ler por esta ordem
 
-1. [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md) — responsabilidade de cada elemento.
-2. [O teu documento individual](elementos/) — o que fazer, entregar e testar.
-3. [`07_DADOS_E_REGRAS.md`](07_DADOS_E_REGRAS.md) — nomes reais das colunas e principais RN.
-4. [`02_PADROES_CODIGO.md`](02_PADROES_CODIGO.md) — convenções de Java/Swing/JDBC.
-5. [`03_CONTRATOS_INTEGRACAO.md`](03_CONTRATOS_INTEGRACAO.md) — métodos e dependências a acordar.
-6. [`04_GIT_GITHUB.md`](04_GIT_GITHUB.md) — branches, Issues e Pull Requests.
-7. [`05_TAREFAS_E_FASES.md`](05_TAREFAS_E_FASES.md) — sequência de trabalho.
-8. [`06_TESTES_E_CRITERIOS.md`](06_TESTES_E_CRITERIOS.md) — o que significa terminar uma tarefa.
-9. [`08_CHECKLIST_ENTREGA.md`](08_CHECKLIST_ENTREGA.md) — preparação da apresentação e limpeza final.
-10. [`09_DECISOES_PENDENTES.md`](09_DECISOES_PENDENTES.md) — dúvidas a resolver **antes** de criar código incompatível.
+1. [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md) — o que cada um faz e o que fica de fora.
+2. [O teu documento individual](elementos/) — tarefas e como demonstrar.
+3. [`02_PADROES_CODIGO.md`](02_PADROES_CODIGO.md) — **como usar o que o Membro 1 já fez** (ligação, sessão, excepções) e um exemplo de DAO.
+4. [`07_DADOS_E_REGRAS.md`](07_DADOS_E_REGRAS.md) — nomes das colunas e regras que entram.
+5. [`03_CONTRATOS_INTEGRACAO.md`](03_CONTRATOS_INTEGRACAO.md) — os poucos métodos que um módulo precisa do outro.
+6. [`04_GIT_GITHUB.md`](04_GIT_GITHUB.md) — branch, commit, Pull Request.
+7. [`05_TAREFAS_E_FASES.md`](05_TAREFAS_E_FASES.md), [`06_TESTES_E_CRITERIOS.md`](06_TESTES_E_CRITERIOS.md), [`08_CHECKLIST_ENTREGA.md`](08_CHECKLIST_ENTREGA.md), [`09_DECISOES_PENDENTES.md`](09_DECISOES_PENDENTES.md).
 
-## Regras que ninguém pode ignorar
+## Regras que ninguém pode ignorar (só estas)
 
-- **Não começar por seis implementações incompatíveis:** congelar nomes de classes, tipos de dados e assinaturas de integração.
-- Cada elemento entrega o módulo completo: Model + DAO + Controller + painel Swing + testes/documentação do módulo.
-- O responsável pela Opção 6 apoia os outros na interface, testes e documentação; **não** substitui a implementação dos módulos.
-- Nunca criar a tabela `leitura`: a leitura está em `fatura`.
-- Nunca pôr SQL dentro de `JPanel`/`JFrame`.
-- Nunca fazer commits directamente em `main`; seguir o processo de PR.
-- Não editar Anexo A, nem aplicar Anexo C, sem decisão colectiva.
-- Não versionar credenciais, ficheiros locais nem dados pessoais reais.
+1. **Sem SQL em `JPanel`/`JFrame`/`JDialog`.** SQL só nos DAO.
+2. **Sempre `PreparedStatement`** para valores vindos do utilizador.
+3. **Ligação sempre por `DatabaseConnection`** (do Membro 1); nada de `DriverManager` noutros sítios.
+4. **Dinheiro em `BigDecimal`**, nunca `double`.
+5. Não criar a tabela `leitura`: a leitura está em `fatura`.
+6. Não alterar o Anexo A nem o `pom.xml` sem avisar o grupo.
+7. Não pôr passwords da BD no código nem no Git.
+8. Cada um trabalha na sua branch e entra em `main` por Pull Request.
 
-## O que cada pessoa deve fazer no primeiro dia
+## Primeiro dia de cada membro
 
-1. Confirmar a sua opção e colocar o nome no quadro de atribuições.
-2. Ler o guia individual e identificar as suas dependências.
-3. Configurar Git, JDK, Maven e MySQL da versão escolhida.
-4. Criar as Issues que lhe pertencem, com resultados verificáveis.
-5. Trabalhar primeiro nos contratos/interfaces e classes Model acordados.
-
-**Importante:** esta documentação é um plano. Ao executar, actualizar os checklists e as decisões; não assumir que o código já existe.
-
+1. Ler o seu documento individual.
+2. Fazer *pull* de `main` (depois de o Membro 1 integrar a `autenticacao`), configurar a BD local e conseguir fazer login.
+3. Criar a sua branch e começar pelo **Model + DAO** da entidade mais simples do seu módulo.
 
 ---
 
 <!-- Ficheiro: docs/interno/01_PLANO_E_DIVISAO.md -->
 
-# Divisão da equipa — seis opções já atribuídas
+# Divisão da equipa — plano simplificado
 
-Os nomes devem ser preenchidos pelo responsável do projecto; **não trocar de módulo sem informar a equipa**. A divisão mantém **3 difíceis, 2 médias, 1 fácil**. Pretende-se compatibilizar capacidades com complexidade, não igualar a dificuldade. Carga operacional distribuída com apoio da Opção 6.
+Mantêm-se as mesmas áreas por membro (ninguém troca de módulo), mas **cada módulo foi reduzido ao essencial**: listar numa `JTable`, inserir/editar num formulário e, quando existe, **uma** regra de negócio que vale a pena mostrar na apresentação.
 
-| Opção | Nível | Área principal | Responsável (preencher) |
+| Membro | Área | Nível (novo) | Responsável |
 |---|---|---|---|
-| 1 | Difícil | Arquitectura, JDBC base, autenticação, controlo de acesso | **[NOME 1]** |
-| 2 | Difícil | Tarifas e facturação | **[NOME 2]** |
-| 3 | Difícil | Contratos e pagamentos | **[NOME 3]** |
-| 4 | Médio | Clientes e contadores | **[NOME 4]** |
-| 5 | Médio | Funcionários e reclamações | **[NOME 5]** |
-| 6 | Fácil + apoio | MainFrame, Dashboard, testes manuais e apoio Swing | **[NOME 6]** |
+| 1 | Projecto Maven, `DatabaseConnection`, login, sessão, perfis | — (**feito**) | **[NOME 1]** |
+| 2 | Tarifas + emissão de facturas | Médio | **[NOME 2]** |
+| 3 | Contratos + pagamentos | Médio | **[NOME 3]** |
+| 4 | Clientes + contadores | Fácil/médio | **[NOME 4]** |
+| 5 | Funcionários + reclamações | Fácil/médio | **[NOME 5]** |
+| 6 | `MainFrame` (menu), Dashboard, dados de demonstração, guia de execução | Fácil | **[NOME 6]** |
 
-**Nota:** o coordenador de arquitectura (Opção 1) não é obrigado a escrever os Models dos outros. É responsável pelo esqueleto e pelas decisões partilhadas. Cada um implementa as classes e interfaces do seu módulo.
+## O que cada um demonstra na apresentação
 
-## Entregas demonstráveis
-
-| Opção | Demonstração obrigatória |
+| Membro | Demonstração |
 |---|---|
-| 1 | Login ADMIN/OPERADOR, logout, permissões funcionais e ligação JDBC |
-| 2 | Consultar/gerir tarifas e emitir uma factura com cálculo correcto |
-| 3 | Criar/alterar contrato e registar pagamento parcial sem ultrapassar saldo |
-| 4 | Registar/pesquisar cliente e instalar/trocar contador respeitando unicidade |
-| 5 | Gerir funcionário e reclamação com responsável/estados válidos |
-| 6 | Navegar pelos painéis e mostrar Dashboard com contagens reais + checklist de testes |
+| 1 | Login válido/inválido, ADMIN vs OPERADOR, logout, ligação JDBC central |
+| 2 | Listar/criar tarifa; emitir factura e mostrar o cálculo (`leitura → consumo → valor`) |
+| 3 | Criar contrato e mudar estado; registar pagamento parcial e ver a factura passar a `paga` |
+| 4 | Registar/pesquisar/editar cliente; registar contador num contrato |
+| 5 | Registar/editar funcionário (só ADMIN); abrir reclamação e mudar estado até `resolvida` |
+| 6 | Navegar entre módulos pelo menu; Dashboard com 4 números reais da BD |
 
-## Responsabilidade comum a TODOS
+## Fora do âmbito (não fazer)
 
-- Criar Model, DAO, Controller, View e Service (quando necessário) das suas tarefas.
-- Implementar validações e mensagens de erro úteis.
-- Testar dados válidos, inválidos e relações com outras tabelas.
-- Documentar como testar cada funcionalidade em cada PR.
-- Participar nas revisões de código e aprender a explicar a própria implementação.
+- Multas automáticas, corte e religação automáticos (RN24–31 só na parte do saldo).
+- Editar ou apagar tarifas. Só se **cria** tarifa nova (que fecha automaticamente a vigente do mesmo tipo — ver Membro 2).
+- Troca de contador "automática" (desactivar um e activar outro numa transacção). Basta mudar o estado à mão.
+- Concorrência (`SELECT ... FOR UPDATE`, testes com duas sessões).
+- Anexo C, `log_transacao`, níveis de isolamento.
+- Ecrã de gestão de contas de utilizador (contas criadas pelo `CriarAdminInicial`/SQL do Membro 1).
+- Branch `develop`, GitHub Projects, Issues obrigatórias.
+- `SwingWorker` em todo o lado (só onde já existe, no login).
+- Apagar registos (DELETE). Não há botões "Eliminar".
+- Testes JUnit para tudo — só para o cálculo da factura (ver [`06_TESTES_E_CRITERIOS.md`](06_TESTES_E_CRITERIOS.md)).
 
-## Integração entre módulos
+## Estrutura de cada módulo (igual para todos)
 
-`cliente` → `contrato` → `contador` → `fatura` → `pagamento`; tarifa e técnico leitor alimentam facturação; reclamação liga-se a cliente e funcionário; login associa-se a funcionário.
+Para cada entidade:
 
-Antes de integrar, combinar: como seleccionar entidades por ID, como carregar JComboBox, quem abre o diálogo, como passar dados entre Controllers e como partilhar Connection numa transacção.
+```text
+model/Cliente.java            atributos + getters/setters (sem Swing, sem SQL)
+dao/ClienteDAO.java           listar, buscarPorId, pesquisar, inserir, actualizar
+controller/ClienteController  lê o formulário, valida o básico, chama o DAO, actualiza a tabela
+view/ClientePanel.java        JTable + campo de pesquisa + botões Novo/Editar
+view/ClienteDialog.java       formulário (JDialog modal)
+```
 
+Camada `service/` **só** onde há uma regra que envolve mais de uma tabela: `FaturaService` (Membro 2) e `PagamentoService` (Membro 3). Nos restantes, o Controller chama directamente o DAO.
+
+## Ordem de integração
+
+`cliente` → `contrato` → `contador` → `fatura` → `pagamento`. Para não ficarem à espera uns dos outros, **usem os dados de exemplo do Anexo A** (já há clientes, contratos, contadores, tarifas e funcionários) enquanto o módulo do colega não chega a `main`.
 
 ---
 
@@ -105,60 +124,41 @@ Antes de integrar, combinar: como seleccionar entidades por ID, como carregar JC
 
 ## Princípios
 
-Fluxo normal: **utilizador → View Swing → Controller → Service (se houver regras) → DAO/JDBC → MySQL**. Model representa as entidades. O Controller responde a eventos sem escrever SQL; DAO não mostra mensagens Swing; Service centraliza validações e transacções que envolvem múltiplas tabelas.
+Fluxo: **utilizador → View Swing → Controller → (Service) → DAO → JDBC → MySQL**. O Model representa as entidades. A View não tem SQL; o DAO não mostra mensagens Swing. A camada Service só existe onde uma operação envolve várias tabelas (emissão de factura e registo de pagamento).
 
 ```text
 src/main/java/mz/agua/
 ├── Main.java
-├── model/             Cliente, Contrato, Contador, Tarifa, Fatura,
-│                      Pagamento, Reclamacao, Funcionario, Usuario
-├── dao/               Um DAO por entidade, mais DashboardDAO
-├── service/           Regras de negócio e transacções multi-entidade
-├── controller/        Recebe eventos da View e coordena serviços
-├── view/
-│   ├── LoginFrame.java
-│   ├── MainFrame.java
-│   ├── panels/         ClientePanel, ContratoPanel, ...
-│   ├── dialogs/        Formulários para inserção/actualização
-│   └── components/     Componentes gráficos reutilizáveis
-├── config/            DatabaseConnection e configuração segura
-├── exception/         Excepções de domínio, quando necessárias
-└── util/              Utilitários realmente partilhados
+├── model/        Cliente, Contrato, Contador, Tarifa, Fatura,
+│                 Pagamento, Reclamacao, Funcionario, Usuario, Perfil
+├── dao/          Um DAO por entidade, mais DashboardDAO
+├── service/      AutenticacaoService, UtilizadorService, FaturaService, PagamentoService
+├── controller/   Recebe eventos da View e chama DAO/Service
+├── view/         LoginFrame, MainFrame, *Panel (listas), *Dialog (formulários)
+├── config/       DatabaseConnection
+├── exception/    ValidacaoException, PersistenciaException, AcessoNegadoException, ...
+└── util/         Sessao, PasswordHasher, CriarAdminInicial
 ```
 
 ## Janelas
 
-`LoginFrame` abre antes da janela principal. `MainFrame` utiliza `BorderLayout` (menu + conteúdo central); o conteúdo usa `CardLayout` para alternar entre `JPanel`. Formulários são `JDialog` modais ou painéis dedicados, conforme necessidade. A equipa deve usar as mesmas convenções de cores, nomes e tamanhos. Não criar um `JFrame` para cada operação.
+`LoginFrame` abre primeiro. Depois do login abre o `MainFrame`: menu à esquerda e área central em `CardLayout`, onde cada módulo é um `JPanel`. Formulários em `JDialog` modal; listas em `JTable`; mensagens com `JOptionPane`.
 
-## Quem faz o quê
+## Ligação à base de dados
 
-- `model`: atributos do esquema e objectos de domínio; não conhece Swing/JDBC.
-- `view`: recolhe valores e apresenta resultados; pode validar formato básico, mas **não** persistir directamente.
-- `controller`: recebe a intenção do utilizador, obtém dados dos formulários, chama serviços e actualiza a View.
-- `service`: regras do minimundo, cálculos, permissões e coordenação de operações atómicas.
-- `dao`: `PreparedStatement`, `ResultSet`, conversão de dados e SQL. Sem SQL nas Views.
-- `config`: fornece uma `Connection` nova para cada unidade de trabalho; fechar recursos adequadamente.
+- `DatabaseConnection` é o único sítio que abre ligações; as credenciais vêm de `application.properties` local ou de variáveis de ambiente.
+- `DatabaseConnection.executar(c -> ...)` abre, executa e fecha. `emTransaccao(c -> ...)` faz `commit` ou `rollback`.
+- Cada DAO recebe a `Connection` no construtor; assim, vários DAOs podem participar na mesma transacção.
+- Todo o SQL usa `PreparedStatement`.
 
-## Decisões técnicas a manter
+## Decisões técnicas
 
-1. Classes em `PascalCase`; atributos e métodos em `camelCase`; nomes SQL como no Anexo A.
-2. Em Java, `DECIMAL` → `BigDecimal`; `DATE` → `LocalDate`; IDs `INT` → `int`/`Integer`.
-3. Tipos `ENUM` SQL serão tratados de forma consistente (enums Java ou conversão validada, a decidir antes de integrar).
-4. Coluna `contador.activo` é **gerada pelo MySQL**: não deve ser escrita com INSERT/UPDATE.
-5. Emissão de factura e registo de pagamentos podem exigir transacções JDBC explícitas, com `commit`/`rollback`.
-6. Consultas demoradas com `SwingWorker`; actualizações da interface apenas na EDT.
-7. Não acrescentar frameworks ORM nem outras tecnologias sem aprovação da equipa.
-
-## Dependências
-
-- Opção 1: ligação JDBC, sessão e autenticação.
-- Opção 3: contratos são consumidos pelas Opções 2 e 4; pagamentos usam facturas da Opção 2.
-- Opção 4: contadores são consumidos pela facturação.
-- Opção 5: técnicos de leitura são consultados pela facturação; funcionários são ligados a utilizadores da Opção 1.
-- Opção 6: navegação e componentes comuns são consumidos por todos.
-
-Consultar os **contratos entre módulos** antes de mudar nomes ou assinaturas: [`docs/interno/03_CONTRATOS_INTEGRACAO.md`](interno/03_CONTRATOS_INTEGRACAO.md).
-
+1. Esquema: Anexo A de BD II + tabela `utilizador`.
+2. `DECIMAL` → `BigDecimal`; `DATE` → `LocalDate`; `ENUM` → `String` escolhida em `JComboBox`.
+3. A coluna `contador.activo` é gerada pelo MySQL e nunca é escrita pela aplicação.
+4. Regras simples são validadas em Java; `CHECK`, `UNIQUE`, `FK` e triggers da BD são a rede de segurança.
+5. Permissões: menus de ADMIN escondidos e `Sessao.exigirAdmin()` no Controller antes de gravar.
+6. Sem frameworks ORM.
 
 ---
 
@@ -166,918 +166,763 @@ Consultar os **contratos entre módulos** antes de mudar nomes ou assinaturas: [
 
 # Casos de uso e controlo de acesso
 
-**Actores:** `OPERADOR` e `ADMIN`. O ADMIN acumula permissões operacionais.
+**Actores:** `OPERADOR` e `ADMIN`. O ADMIN pode fazer tudo o que o OPERADOR faz.
 
 | Código | Caso de uso | OPERADOR | ADMIN |
 |---|---|:---:|:---:|
 | UC01 | Iniciar e terminar sessão | ✓ | ✓ |
-| UC02 | Registar, pesquisar, listar e actualizar clientes | ✓ | ✓ |
-| UC03 | Consultar contratos de um cliente | ✓ | ✓ |
-| UC04 | Criar, pesquisar e alterar estados de contratos | ✓ | ✓ |
-| UC05 | Instalar, consultar e trocar contadores | ✓ | ✓ |
-| UC06 | Consultar tarifas | ✓ | ✓ |
-| UC06-A | Criar tarifas e gerir a vigência | — | ✓ |
-| UC07 | Registar leitura e emitir factura | ✓ | ✓ |
-| UC08 | Consultar facturas e saldos | ✓ | ✓ |
-| UC09 | Registar pagamentos totais/parciais | ✓ | ✓ |
-| UC10 | Abrir, atribuir e resolver reclamações | ✓ | ✓ |
-| UC11 | Gerir funcionários | — | ✓ |
-| UC12 | Criar, activar e desactivar contas de utilizador | — | ✓ |
-| UC13 | Consultar Dashboard | ✓ | ✓ |
+| UC02 | Registar, pesquisar e editar clientes | ✓ | ✓ |
+| UC03 | Criar contratos e mudar o seu estado | ✓ | ✓ |
+| UC04 | Registar contadores e mudar o seu estado | ✓ | ✓ |
+| UC05 | Consultar tarifas | ✓ | ✓ |
+| UC05-A | Criar nova tarifa | — | ✓ |
+| UC06 | Registar leitura e emitir factura | ✓ | ✓ |
+| UC07 | Registar pagamentos totais/parciais | ✓ | ✓ |
+| UC08 | Abrir, atribuir e resolver reclamações | ✓ | ✓ |
+| UC09 | Registar e editar funcionários | — | ✓ |
+| UC10 | Consultar Dashboard | ✓ | ✓ |
 
-**O cargo do funcionário** (ex.: `tecnico_leitura`) não é o mesmo que o perfil de acesso (`ADMIN`/`OPERADOR`). Só um técnico de leitura pode constar como responsável pela leitura na `fatura`, independentemente do perfil de quem opera o sistema.
+**Cargo ≠ perfil:** o cargo do funcionário (ex.: `tecnico_leitura`) é do negócio; `ADMIN`/`OPERADOR` é o perfil de acesso à aplicação. Só um técnico de leitura pode constar como responsável pela leitura numa factura, seja qual for o perfil de quem opera o sistema.
 
-## UC07: emissão de factura
+## UC06: emitir factura
 
-**Pré-condições:** sessão válida; contrato e contador activos; referência mensal ainda não facturada para o contador; técnico com cargo `tecnico_leitura`; tarifa em vigor na `data_leitura`.
+**Pré-condições:** contrato e contador activos; tarifa vigente na data da leitura; mês ainda não facturado para esse contador.
 
-1. Funcionário selecciona contrato e contador.
-2. Sistema consulta leitura anterior (última `leitura_atual` do contador, senão `leitura_inicial`).
-3. Funcionário informa mês/ano, data e leitura actual, e identifica técnico leitor.
-4. Sistema valida sequência de leitura, vigência da tarifa e duplicação por período.
-5. Calcula `consumo = leitura_atual - leitura_anterior` e `valor_base = max(consumo, consumo_minimo) * preco_por_m3`.
-6. Calcula vencimento para o dia **10 do mês seguinte à emissão**; apresenta resumo para confirmação.
-7. Regista `fatura` com `id_tarifa` e `valor_base` fixados na emissão.
+1. O funcionário escolhe o contrato; o sistema mostra o contador activo e a leitura anterior (última `leitura_atual` do contador, ou `leitura_inicial`).
+2. O funcionário indica mês/ano, data da leitura, leitura actual e técnico de leitura.
+3. O sistema calcula `consumo = actual - anterior` e `valor_base = max(consumo, consumo_minimo) × preco_por_m3`, e o vencimento (dia 10 do mês seguinte à emissão).
+4. O funcionário confirma; a factura fica `pendente`.
 
-**Falhas:** leitura menor que a anterior, tarifa inexistente, técnico inadequado, período duplicado ou concorrência → mensagem adequada, nenhuma factura parcial.
+**Falhas:** leitura menor que a anterior, sem tarifa vigente, mês repetido ou técnico inválido → mensagem de erro, nenhuma factura gravada.
 
-## UC09: registar pagamento
+## UC07: registar pagamento
 
-**Pré-condições:** sessão válida, factura existente e não paga.
+1. O funcionário escolhe uma factura pendente; o sistema mostra o saldo (`valor_base + valor_multa - total pago`).
+2. Indica valor, data, método e número de recibo.
+3. Numa transacção, o sistema recusa valores acima do saldo, grava o pagamento (com `registado_por` = funcionário em `dinheiro`/`transferencia`/`cartao`, ou vazio em `mpesa`/`emola`) e marca a factura como `paga` se o saldo chegar a zero.
 
-1. Seleccionar factura e consultar saldo actualizado.
-2. Informar valor, data, método e recibo único.
-3. Aplicar RN38: para `dinheiro`, `transferencia` ou `cartao`, guardar funcionário em `registado_por`; para `mpesa`/`emola`, guardar `NULL`.
-4. Numa mesma transacção, bloquear a factura, recalcular o saldo e impedir exceder o saldo ou pagar factura já liquidada.
-5. Inserir pagamento e marcar factura como `paga` quando saldo zero.
-6. Confirmar; actualizar a listagem.
-
-**Falhas:** recibo duplicado, valor inválido ou tentativa concorrente → `rollback`, comunicação clara ao utilizador.
-
-## UC12: criar conta
-
-1. ADMIN escolhe funcionário existente sem conta.
-2. Define username único, perfil, e palavra-passe inicial.
-3. Aplicação gera hash de password (bcrypt/Argon2id, não texto simples).
-4. Guarda conta ligada ao `id_funcionario` e informa resultado sem mostrar hash ou password em logs.
+**Falhas:** valor inválido ou acima do saldo, recibo repetido → nada é gravado.
 
 ## Limites do projecto
 
-Sem portal de clientes, sem app móvel, sem integração real com M-Pesa/e-Mola, sem emissão de leitura autónoma. O Dashboard deve apresentar dados reais, não números fictícios. O comportamento de multas e corte/religação deve obedecer ao minimundo e ao âmbito decidido na equipa.
-
+Sem portal de clientes, sem app móvel, sem integração real com M-Pesa/e-Mola. Fora do âmbito: multas, corte/religação automáticos, estado `vencida`, gestão de contas de utilizador por ecrã, eliminação de registos.
 
 ---
 
 <!-- Ficheiro: docs/interno/07_DADOS_E_REGRAS.md -->
 
-# Dicionário curto do Anexo A e regras essenciais
+# Dicionário curto do Anexo A e regras que entram
 
-**Fontes:** `database/bdii/Anexo_A_Esquema.sql` e o documento *Minimundo e Regras de Negócio* de BD II. Este resumo é específico do **Anexo A sem optimização** e não substitui o SQL.
+**Fontes:** [`database/bdii/Anexo_A_Esquema.sql`](../../database/bdii/Anexo_A_Esquema.sql) e o *Minimundo e Regras de Negócio* de BD II. Usamos **só o Anexo A** (sem Anexo C).
 
-## Tabelas e colunas (Anexo A)
+## Tabelas e colunas
 
-| Tabela | Colunas existentes |
+| Tabela | Colunas |
 |---|---|
-| `cliente` | `id_cliente`, `nome_completo`, `nuit`, `telefone`, `rua`, `numero_casa`, `bairro` |
+| `cliente` | `id_cliente`, `nome_completo`, `nuit` (opcional, único), `telefone`, `rua`, `numero_casa`, `bairro` |
 | `funcionario` | `id_funcionario`, `nome`, `telefone`, `cargo` |
-| `tarifa` | `id_tarifa`, `tipo_contrato`, `preco_por_m3`, `consumo_minimo`, `data_inicio`, `data_fim` |
+| `tarifa` | `id_tarifa`, `tipo_contrato`, `preco_por_m3`, `consumo_minimo`, `data_inicio`, `data_fim` (NULL = vigente) |
 | `contrato` | `id_contrato`, `tipo_contrato`, `estado_contrato`, `data_inicio`, `data_fim`, `rua`, `numero_porta`, `quarteirao`, `bairro`, `id_cliente` |
-| `contador` | `id_contador`, `numero_contador`, `data_instalacao`, `data_remocao`, `leitura_inicial`, `estado_contador`, **`activo` (coluna gerada!)**, `id_contrato` |
+| `contador` | `id_contador`, `numero_contador`, `data_instalacao`, `data_remocao`, `leitura_inicial`, `estado_contador`, `activo` (**gerada pela BD — nunca escrever**), `id_contrato` |
 | `fatura` | `id_fatura`, `mes_referencia`, `ano_referencia`, `data_leitura`, `leitura_anterior`, `leitura_atual`, `data_emissao`, `data_vencimento`, `valor_base`, `valor_multa`, `estado_fatura`, `id_contador`, `id_tarifa`, `id_funcionario` |
-| `pagamento` | `id_pagamento`, `data_pagamento`, `valor`, `metodo_pagamento`, `numero_recibo`, `id_fatura`, `registado_por` |
+| `pagamento` | `id_pagamento`, `data_pagamento`, `valor`, `metodo_pagamento`, `numero_recibo` (único), `id_fatura`, `registado_por` |
 | `reclamacao` | `id_reclamacao`, `tipo_reclamacao`, `descricao`, `data_abertura`, `data_fecho`, `estado_reclamacao`, `id_cliente`, `id_funcionario` |
-| `log_auditoria` | `id_log`, `usuario`, `acao`, `tabela_afetada`, `registro_id`, `detalhe`, `data_hora` |
-| `log_transacao` | `id_log`, `transacao`, `utilizador`, `tipo_operacao`, `inicio`, `fim`, `estado`, `codigo_erro` |
+| `utilizador` | tabela do login (Membro 1) — os outros não mexem |
 
-**Apenas colunas do Anexo A:** `valor_pago`, `consumo_m3`, `valor_total`, `saldo_em_divida` **não existem** fisicamente na `fatura`. O Anexo C muda isso; ver [`database/README.md`](../../database/README.md).
+`log_auditoria` e `log_transacao` existem mas **ninguém precisa de as usar** (os triggers preenchem a auditoria sozinhos).
 
-## Valores ENUM exactos
+## Valores ENUM (copiar exactamente para as `JComboBox`)
 
-- `contrato.tipo_contrato`, `tarifa.tipo_contrato`: `residencial`, `comercial`.
-- `contrato.estado_contrato`: `activo`, `suspenso`, `cortado`, `terminado`.
-- `contador.estado_contador`: `activo`, `inactivo`, `avariado`.
-- `funcionario.cargo`: `tecnico_leitura`, `tecnico_manutencao`, `atendimento`, `supervisor`, `administrador`.
-- `fatura.estado_fatura`: `pendente`, `paga`, `vencida`.
-- `pagamento.metodo_pagamento`: `dinheiro`, `transferencia`, `mpesa`, `emola`, `cartao`.
-- `reclamacao.tipo_reclamacao`: `fuga`, `avaria_contador`, `falta_agua`, `qualidade_agua`, `faturacao`, `atendimento`, `outro`.
-- `reclamacao.estado_reclamacao`: `aberta`, `em_tratamento`, `resolvida`.
+- `tipo_contrato`: `residencial`, `comercial`
+- `estado_contrato`: `activo`, `suspenso`, `cortado`, `terminado`
+- `estado_contador`: `activo`, `inactivo`, `avariado`
+- `cargo`: `tecnico_leitura`, `tecnico_manutencao`, `atendimento`, `supervisor`, `administrador`
+- `estado_fatura`: `pendente`, `paga`, `vencida`
+- `metodo_pagamento`: `dinheiro`, `transferencia`, `mpesa`, `emola`, `cartao`
+- `tipo_reclamacao`: `fuga`, `avaria_contador`, `falta_agua`, `qualidade_agua`, `faturacao`, `atendimento`, `outro`
+- `estado_reclamacao`: `aberta`, `em_tratamento`, `resolvida`
 
-## Relações principais
+## Relações
 
 ```text
-cliente (1) ─── (N) contrato (1) ─── (N) contador (1) ─── (N) fatura
-    |                                                              |
-    └─────── (N) reclamacao                        tarifa (1) ───────┤
-                                               funcionario (1) ─────┤
-                                                              pagamento (N)
-funcionario (1) ─── (N) reclamacao [responsável, opcional]
-funcionario (1) ─── (N) pagamento [registado_por, opcional]
+cliente (1) ── (N) contrato (1) ── (N) contador (1) ── (N) fatura (1) ── (N) pagamento
+   └── (N) reclamacao                          tarifa (1) ──┘
+funcionario: técnico da fatura; responsável da reclamacao; registado_por do pagamento
 ```
 
-As referências cruzadas são representadas pelas FKs no esquema; consultar MER para leitura rigorosa de cardinalidades.
+## Regras que entram (e quem já as garante)
 
-## Regras relevantes para implementação
+| Regra | O quê | Java | BD já garante |
+|---|---|:---:|:---:|
+| RN01 | NUIT opcional e único | — | ✓ `UNIQUE` |
+| RN05 | contrato `terminado` exige `data_fim` | ✓ | ✓ `CHECK` |
+| RN09 | um contador activo por contrato | — | ✓ `UNIQUE` |
+| RN11/17 | leitura anterior = última `leitura_atual` do contador, senão `leitura_inicial` | ✓ | — |
+| RN12 | preço e mínimo > 0 | ✓ | ✓ `CHECK` |
+| RN13 | tarifas do mesmo tipo sem sobreposição | fechar a vigente | ✓ trigger |
+| RN15 | só factura contrato/contador activos | ✓ | — |
+| RN16 | uma factura por contador e mês | — | ✓ `UNIQUE` |
+| RN18 | leitura actual ≥ anterior | ✓ | ✓ `CHECK` |
+| RN19 | leitura feita por `tecnico_leitura` | combo só com técnicos | ✓ trigger |
+| RN20 | `valor_base = max(consumo, mínimo) × preço` | ✓ | — |
+| RN22 | vencimento dia 10 do mês seguinte à emissão | ✓ | — |
+| RN24 | não pagar acima do saldo | ✓ | — |
+| RN34/35 | reclamação: `resolvida` ⇔ `data_fecho`; `em_tratamento` exige responsável | ✓ | ✓ `CHECK` |
+| RN38 | `registado_por` NULL em `mpesa`/`emola`, preenchido nos outros | ✓ | ✓ `CHECK` |
 
-- **RN01–06:** cliente/contrato. NUIT opcional e único; contrato pode ser terminado uma única vez e deve ter data de fim; local de fornecimento pode diferir da morada do cliente.
-- **RN07–11:** contador. Número de série único; apenas um activo por contrato; `leitura_inicial` alimenta a primeira factura.
-- **RN12–14:** tarifa. Preço/mínimo positivos; intervalos sem sobreposição; tarifa vigente depende da data e do tipo do contrato; não editar tarifa antiga usada.
-- **RN15–23:** factura. Apenas contrato/contador activos; no máximo 1 factura por contador e mês; técnico leitor obrigatório; cálculo do valor-base; vencimento a 10 do mês seguinte.
-- **RN24–31:** pagamentos, multas, corte e religação. Não pagar além do saldo; multa de 25% uma vez quando aplicável; saldo devedores inclui multa.
-- **RN32–35:** reclamações. Ligadas a cliente, não a contador/contrato; responsável exigido ao iniciar tratamento; resolver exige data de fecho.
-- **RN36–38:** cargos válidos; manter histórico; `registado_por` NULL nos métodos `mpesa` e `emola`, preenchido nos demais.
-- **RN39–42:** auditoria e registo de transacções.
+**Ficam de fora:** multas (RN25–28), corte/religação automáticos (RN29–31), log de transacções (RN41–42).
 
 ## Cálculos
 
 ```text
-consumo_m3   = leitura_atual - leitura_anterior
-consumo_cobrado = MAX(consumo_m3, consumo_minimo)
-valor_base   = consumo_cobrado * preco_por_m3
-valor_total  = valor_base + valor_multa
-valor_pago   = SUM(pagamento.valor da fatura)
-saldo        = valor_total - valor_pago
+consumo         = leitura_atual - leitura_anterior
+consumo_cobrado = MAX(consumo, consumo_minimo)
+valor_base      = consumo_cobrado * preco_por_m3          (BigDecimal, 2 casas)
+total_pago      = SUM(pagamento.valor) da factura
+saldo           = valor_base + valor_multa - total_pago   (valor_multa fica sempre 0)
 ```
-
-O valor da factura deve ser tratado com `BigDecimal`. Consultas SQL devem respeitar a variante de BD congelada.
-
-## Atenção a detalhes do SQL
-
-1. A validação de sobreposição de tarifa ocorre no trigger `trg_tarifa_before_insert`; a UI também deve prevenir uma má entrada.
-2. O trigger `trg_fatura_before_insert` verifica se o funcionário tem cargo `tecnico_leitura`.
-3. Os CHECKs e UNIQUE protegem parte do modelo, mas **não substituem** validações de fluxo na aplicação.
-4. O Anexo A inclui dados de exemplo e `DROP DATABASE`: executar com cuidado.
-5. A versão optimizada de BD II cria dados derivados na factura que **não estão** no esquema-base; nunca os assumir sem decidir qual variante será usada.
-
 
 ---
 
 <!-- Ficheiro: docs/interno/02_PADROES_CODIGO.md -->
 
-# Convenções técnicas obrigatórias
+# Convenções técnicas (simplificadas)
 
-## Linguagem e estrutura
+## Nomes e pacotes
 
-- Package raiz: `mz.agua`.
-- Classes: `Cliente`, `FaturaDAO`, `FaturaController`, `FaturaPanel`.
-- Métodos/campos: `listarClientes()`, `idCliente`, `precoPorM3`.
-- Nomes persistidos em MySQL permanecem iguais ao Anexo A (`id_fatura`, `estado_contrato`, etc.).
-- Nomes de classes sem acentos; textos apresentados ao utilizador podem ter acentos.
-- Evitar criar classes, interfaces e heranças sem responsabilidade real.
-- Todas as operações sensíveis devem ter mensagens de sucesso/erro claras.
+- Package raiz: `mz.agua`. Pastas: `model`, `dao`, `service` (só Membros 2 e 3), `controller`, `view`.
+- Classes: `Cliente`, `ClienteDAO`, `ClienteController`, `ClientePanel`, `ClienteDialog`.
+- Métodos/campos em `camelCase` (`idCliente`, `precoPorM3`); colunas SQL iguais ao Anexo A (`id_cliente`).
+- Nomes de classes sem acentos; textos mostrados ao utilizador podem ter acentos.
 
 ## Tipos
 
 | SQL | Java |
 |---|---|
-| `INT`, `SMALLINT`, `TINYINT` numérico | `int` / `Integer` (conforme nulidade) |
-| `VARCHAR`, `TEXT`, `ENUM` | `String` validada, ou enum Java padronizado |
-| `DECIMAL(...)` | `BigDecimal` |
-| `DATE` | `LocalDate` |
-| `DATETIME`, `TIMESTAMP` | `LocalDateTime` (se necessários) |
-| `TINYINT` para booleano de `utilizador` | `boolean` ou `Boolean` |
+| `INT` | `int` (ou `Integer` se puder ser `NULL`) |
+| `VARCHAR`, `TEXT`, `ENUM` | `String` (os ENUM escolhem-se numa `JComboBox` com os valores exactos) |
+| `DECIMAL` | `BigDecimal` |
+| `DATE` | `LocalDate` (`rs.getObject("data_inicio", LocalDate.class)` / `ps.setObject(i, data)`) |
 
-Nunca calcular valores monetários com `double`; usar operações e arredondamento explícito de `BigDecimal`.
+**Decisão:** ENUM do SQL ficam como `String` em Java — não criar enums Java (excepto `Perfil`, que já existe). A `JComboBox` garante que só se escolhem valores válidos.
 
-## MVC e Swing
+## O que o Membro 1 já deixou pronto (usar, não refazer)
 
-- `View`: componentes Swing, apresentação, leitura de campos e eventos; **sem SQL**.
-- `Controller`: liga eventos a serviços/DAOs; devolve respostas para a View.
-- `Service`: valida regras complexas, calcula valores e coordena transacções.
-- `DAO`: apenas SQL, mapeamento de resultados e persistência.
-- Usar `JTable` para listas; mensagens por `JOptionPane` ou componente definido pela equipa.
-- `MainFrame` partilhado, navegação com `CardLayout`.
-- Consultas potencialmente lentas devem correr em `SwingWorker`; nunca actualizar Swing fora da EDT.
+| Classe | Para quê |
+|---|---|
+| `config.DatabaseConnection` | `executar(c -> ...)` para leituras/escritas simples; `emTransaccao(c -> ...)` para operações com commit/rollback |
+| `util.Sessao` | `Sessao.isAdmin()`, `Sessao.exigirAdmin()`, `Sessao.getIdFuncionarioAutenticado()` |
+| `exception.ValidacaoException` | erro de regra/validação com mensagem para o utilizador |
+| `exception.PersistenciaException` | erro de BD (já traz mensagem amigável) |
+| `exception.AcessoNegadoException` | operação sem permissão |
+| `Main.terminarSessaoEVoltarAoLogin()` | logout (o `MainFrame` chama isto) |
 
-## JDBC
+Configuração local: ver [guia de execução](../guia-de-execucao.md). Cada um tem o seu `application.properties` (não vai para o Git).
 
-- Sempre `PreparedStatement` para dados de utilizador; nunca construir WHERE com concatenação de entradas.
-- Fechar `ResultSet`, `Statement` e `Connection` após o uso; nunca manter conexão global eternamente aberta.
-- A fábrica de ligação é central, não duplicada em cada módulo.
-- Para pagamentos/geração de factura, estabelecer transacções claras e `rollback` em falha.
-- Erros SQL técnicos podem ser registados sem credenciais; ao utilizador mostrar uma mensagem compreensível.
-- Se for usado `SET @app_utilizador = ...` para os triggers de auditoria, fazê-lo **em cada Connection relevante**, porque a variável é específica da sessão MySQL.
+## Exemplo completo de DAO (copiar este estilo)
 
-## Segurança
+O DAO recebe a `Connection` no construtor (igual ao `UsuarioDAO`) e **não** a abre nem fecha.
 
-- Password apenas como `password_hash`, com mecanismo apropriado (bcrypt/Argon2id) acordado.
-- Não confiar só em esconder botões: os Controllers/Services também verificam permissões.
-- Não hardcode passwords JDBC ou dados de autenticação nos ficheiros Java.
-- Não registar informações sensíveis em logs de depuração.
+```java
+public class ClienteDAO {
+    private final Connection ligacao;
+
+    public ClienteDAO(Connection ligacao) { this.ligacao = ligacao; }
+
+    public List<Cliente> pesquisar(String termo) throws SQLException {
+        String sql = "SELECT * FROM cliente WHERE nome_completo LIKE ? ORDER BY nome_completo";
+        try (PreparedStatement ps = ligacao.prepareStatement(sql)) {
+            ps.setString(1, "%" + termo + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Cliente> lista = new ArrayList<>();
+                while (rs.next()) {
+                    lista.add(mapear(rs));
+                }
+                return lista;
+            }
+        }
+    }
+
+    public void inserir(Cliente c) throws SQLException {
+        String sql = "INSERT INTO cliente (nome_completo, nuit, telefone, rua, numero_casa, bairro) VALUES (?,?,?,?,?,?)";
+        try (PreparedStatement ps = ligacao.prepareStatement(sql)) {
+            ps.setString(1, c.getNomeCompleto());
+            ps.setString(2, c.getNuit());          // pode ser null
+            // ...
+            ps.executeUpdate();
+        }
+    }
+
+    private Cliente mapear(ResultSet rs) throws SQLException { /* rs.getInt("id_cliente"), ... */ }
+}
+```
+
+## Exemplo de Controller
+
+```java
+// carregar a tabela
+List<Cliente> clientes = DatabaseConnection.executar(c -> new ClienteDAO(c).pesquisar(termo));
+painel.mostrarClientes(clientes);
+
+// guardar
+try {
+    validar(cliente);                                  // ifs simples -> throw new ValidacaoException("...")
+    DatabaseConnection.executar(c -> { new ClienteDAO(c).inserir(cliente); return null; });
+    JOptionPane.showMessageDialog(painel, "Cliente registado.");
+} catch (ValidacaoException | PersistenciaException | AcessoNegadoException e) {
+    JOptionPane.showMessageDialog(painel, e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+}
+```
+
+## Validações: Java primeiro, BD como rede de segurança
+
+- No Java: campos obrigatórios, números positivos, datas coerentes e a regra principal do módulo.
+- A BD já tem `CHECK`/`UNIQUE`/triggers (ex.: NUIT único, um contador activo por contrato, técnico de leitura, sobreposição de tarifas). Se algo escapar, a BD recusa e o utilizador vê a mensagem da `PersistenciaException`. **Não é preciso repetir todas as regras em Java.**
+
+## Swing
+
+- Uma só janela principal (`MainFrame`, Membro 6) com `CardLayout`. Cada módulo entrega um `JPanel`.
+- Formulários em `JDialog` modal. Listas em `JTable` dentro de `JScrollPane`.
+- Mensagens com `JOptionPane`.
+- Botões só de ADMIN: esconder com `Sessao.isAdmin()` **e** chamar `Sessao.exigirAdmin()` no Controller antes de gravar (uma linha).
 
 ## Git
 
-- Commits pequenos que descrevam alterações: `feat(fatura): calcular consumo minimo`, `fix(cliente): validar NUIT opcional`.
-- Não formatar o projecto todo numa PR de apenas um módulo.
-- Não mudar esquemas e dependências do Maven sem informar a equipa.
-
-## Excepções, testes e documentação
-
-- Erros de validação devem ser distinguíveis de erros de ligação SQL.
-- Um erro não deve deixar uma transacção parcialmente aplicada.
-- Criar testes de serviços/cálculos sem necessidade de Swing sempre que possível.
-- Testes JDBC de integração devem usar base de testes descartável e dados controlados.
-
+Commits pequenos e com mensagem clara: `feat(cliente): pesquisar por nome`, `fix(fatura): vencimento no dia 10`.
 
 ---
 
 <!-- Ficheiro: docs/interno/03_CONTRATOS_INTEGRACAO.md -->
 
-# Contratos entre módulos (API interna proposta)
+# O que cada módulo precisa dos outros (versão curta)
 
-**Objectivo:** evitar que seis elementos inventem assinaturas incompatíveis. Estes métodos são **propostas a validar numa reunião curta antes de programar**; após aprovação, qualquer mudança deve passar por revisão.
+Regra geral: **se precisas de dados de outra tabela só para preencher uma `JComboBox`, pede ao dono o método abaixo.** Se o método ainda não estiver em `main`, escreve temporariamente a consulta no teu DAO e troca-a quando o colega integrar — não fiques à espera.
 
-## Princípio de colaboração
+Todos os DAO recebem a `Connection` no construtor (ver [`02_PADROES_CODIGO.md`](02_PADROES_CODIGO.md)).
 
-As Views trabalham com IDs seleccionados e objectos Model, não com SQL de outro módulo. O Controller usa Service/DAO do dono do módulo. O DAO pode receber uma `Connection` criada pela camada de serviço, permitindo que vários DAOs participem na mesma transacção JDBC.
-
-**Convenção proposta de ciclo de ligação:** `DatabaseConnection.getConnection()` devolve uma conexão nova. Serviços de operações compostas obtêm a conexão, criam os DAOs necessários com ela, controlam commit/rollback e garantem o fecho. Serviços simples podem chamar um DAO com Connection própria. **Não criar diferentes modelos de gestão de Connection por módulo.**
-
-## Interfaces de leitura que outros módulos precisam
-
-| Dono | Quem consome | Operação (assinatura conceptual) |
+| Dono | Método | Quem usa |
 |---|---|---|
-| Opção 4 (Clientes) | 3, 5, 6 | `buscarClientePorId(int id)`; `pesquisarClientes(String termo)` |
-| Opção 3 (Contratos) | 2, 4 | `buscarContratoPorId(int id)`; `listarContratosActivos()`; `listarPorCliente(int idCliente)` |
-| Opção 4 (Contadores) | 2, 3 | `buscarContadorActivo(int idContrato)`; `buscarContadorPorId(int id)` |
-| Opção 5 (Funcionários) | 1, 2, 3 | `buscarFuncionarioPorId(int id)`; `listarTecnicosLeitura()` |
-| Opção 2 (Tarifas) | 2 (Factura) | `buscarTarifaVigente(String tipoContrato, LocalDate dataLeitura)` |
-| Opção 2 (Facturas) | 3, 6 | `buscarFaturaPorId(int id)`; `listarFaturasPorContrato(int idContrato)`; `obterLeituraAnterior(int idContador)` |
-| Opção 3 (Pagamentos) | 2, 6 | `obterTotalPago(int idFatura)`; `obterSaldo(int idFatura)` |
-| Opção 1 (Sessão) | Todos | `getFuncionarioAutenticado()`; `isAdmin()`; `terminarSessao()` |
-| Opção 6 (Navegação) | Todos | `abrirModulo(String chave)` e convenção dos IDs de cartões |
+| Membro 4 | `ClienteDAO.listar()` / `buscarPorId(int)` | 3 (contrato), 5 (reclamação) |
+| Membro 3 | `ContratoDAO.listarActivos()` / `buscarPorId(int)` | 2 (factura), 4 (contador) |
+| Membro 4 | `ContadorDAO.buscarActivoPorContrato(int idContrato)` | 2 (factura) |
+| Membro 5 | `FuncionarioDAO.listarPorCargo(String cargo)` | 2 (técnicos `tecnico_leitura`), 5 |
+| Membro 2 | `TarifaDAO.buscarVigente(String tipoContrato, LocalDate data)` | 2 |
+| Membro 2 | `FaturaDAO.listarPendentes()` / `buscarPorId(int)` | 3 (pagamento) |
+| Membro 3 | `PagamentoDAO.totalPago(int idFatura)` | 3 |
+| Membro 6 | `MainFrame.adicionarModulo(String nome, JPanel painel, boolean soAdmin)` | todos |
+| Membro 1 | `Sessao.isAdmin()`, `Sessao.exigirAdmin()`, `Sessao.getIdFuncionarioAutenticado()` | todos |
 
-As assinaturas finais devem indicar tipos de retorno (`Optional<T>`, `List<T>`, `BigDecimal`, etc.), tipos de excepção e onde o `Connection` é recebido. **Não tratar esta tabela como código pronto para compilar.**
+Os métodos devolvem `List<Modelo>` ou o `Modelo` (ou `null`/`Optional` se não existir — o dono escolhe e documenta no Javadoc).
 
-## Contratos de dados críticos
+## Três factos que evitam confusões
 
-### Tarifa
-
-`tipo_contrato` é `'residencial'` ou `'comercial'`. A tarifa válida em `data_leitura` satisfaz `data_inicio <= data` e `(data_fim IS NULL OR data_fim >= data)`. `data_fim` é inclusiva; não criar sobreposição de intervalos. Tarifas históricas usadas em facturas não mudam retroactivamente.
-
-### Factura
-
-A emissão precisa de contrato activo, contador activo, período e técnico de leitura; a leitura anterior vem da factura precedente ou da leitura inicial. Não existem `consumo_m3`, `valor_pago`, `valor_total` nem `saldo_em_divida` persistidos no esquema-base. A Opção 2 disponibiliza dados necessários para a Opção 3 pagar a factura.
-
-### Pagamento
-
-O saldo deve ser recalculado dentro da transacção após bloquear a factura (`SELECT ... FOR UPDATE`). Nunca confiar só no saldo mostrado anteriormente na UI. No Anexo A, soma de `pagamento.valor` alimenta o saldo, mas o Anexo C muda a estratégia — consultar [`database/README.md`](../../database/README.md).
-
-### Funcionário vs Utilizador
-
-`funcionario.cargo` determina funções de negócio como técnico de leitura. `utilizador.perfil` determina autorização para aceder à aplicação. São conceitos independentes.
-
-## Regras de integração
-
-1. Abrir Issue para dependência ainda não definida.
-2. Publicar exemplos de entradas, saídas e erros.
-3. Rever com o responsável consumidor **antes** de mudar interface já usada.
-4. Preferir IDs/Models estáveis; não passar referências a componentes Swing entre módulos.
-5. Integrar alterações pequenas, não esperar pelos seis módulos terminados.
-
+- **Tarifa vigente:** `tipo_contrato = ?` e `data_inicio <= data` e `(data_fim IS NULL OR data_fim >= data)`.
+- **Saldo de uma factura:** `valor_base + valor_multa - SUM(pagamento.valor)`. Não existe coluna `saldo` nem `valor_pago` no Anexo A.
+- **Cargo ≠ perfil:** `funcionario.cargo` (ex.: `tecnico_leitura`) é do negócio; `ADMIN`/`OPERADOR` é do login.
 
 ---
 
 <!-- Ficheiro: docs/interno/04_GIT_GITHUB.md -->
 
-# GitHub — fluxo de colaboração
-
-## Estrutura do repositório
-
-```text
-fornecimento-agua-poo2/
-├── README.md
-├── pom.xml                        # adicionado pela Opção 1
-├── .gitignore
-├── database/
-│   ├── README.md
-│   ├── 01_esquema_bdii.sql        # a adicionar após revisão
-│   ├── 02_autenticacao.sql        # a adicionar após revisão
-│   └── 03_dados_teste.sql         # opcional, sem dados reais
-├── docs/
-│   ├── arquitectura.md
-│   ├── casos-de-uso.md
-│   ├── guia-de-execucao.md
-│   └── interno/                   # trabalho da equipa; remover na entrega se desejado
-├── src/
-│   ├── main/
-│   │   ├── java/mz/agua/
-│   │   │   ├── Main.java
-│   │   │   ├── model/
-│   │   │   ├── dao/
-│   │   │   ├── service/
-│   │   │   ├── controller/
-│   │   │   ├── view/{panels,dialogs,components}/
-│   │   │   ├── config/
-│   │   │   ├── exception/
-│   │   │   └── util/
-│   │   └── resources/
-│   └── test/java/mz/agua/
-└── .github/
-    ├── PULL_REQUEST_TEMPLATE.md
-    └── ISSUE_TEMPLATE/feature.md
-```
+# GitHub — fluxo simples
 
 ## Branches
 
-- `main`: versão estável e demonstrável.
-- `develop`: integração de funcionalidades revistas.
-- `feature/autenticacao`, `feature/facturacao-tarifas`, `feature/contratos-pagamentos`, `feature/clientes-contadores`, `feature/funcionarios-reclamacoes`, `feature/dashboard-interface`: branches de trabalho propostas.
+- `main`: versão que funciona. Ninguém faz commit directo.
+- Uma branch por membro: `autenticacao` (Membro 1, já existe), `facturacao`, `contratos-pagamentos`, `clientes-contadores`, `funcionarios-reclamacoes`, `interface-dashboard`.
 
-Em equipas com várias Issues por módulo, preferir branches curtas por Issue, por exemplo `feature/42-criar-tarifa-dao`. **Não trabalhar todos sobre a mesma branch.**
+Sem `develop`, sem branches por Issue. Issues e GitHub Projects são opcionais.
 
 ## Ciclo de trabalho
 
-1. Abrir/atribuir uma Issue com requisitos, dependências e critérios de aceitação.
-2. Actualizar a branch a partir de `develop`.
-3. Implementar uma funcionalidade pequena, compilar e testar localmente.
-4. Fazer commits próprios; nunca inserir autores/coautores que não tenham contribuído.
-5. Abrir Pull Request da branch para `develop`, usar o template e anexar screenshots da UI se necessário.
-6. Conseguir revisão de pelo menos outro elemento (para mudanças estruturais: Opção 1).
-7. Corrigir comentários; integrar somente quando o projecto compila e a funcionalidade funciona.
-8. Periodicamente promover `develop` para `main` após teste completo.
-
-### Comandos de referência
-
 ```bash
-git checkout develop
-git pull origin develop
-git checkout -b feature/42-criar-tarifa-dao
-# ... desenvolver, testar, adicionar ficheiros necessários ...
-git add .
-git commit -m "feat(tarifa): consultar tarifa vigente"
-git push -u origin feature/42-criar-tarifa-dao
+git checkout main
+git pull
+git checkout -b clientes-contadores      # só da primeira vez
+# ... trabalhar ...
+git status                               # confirmar que não vai application.properties nem target/
+git add src/...
+git commit -m "feat(cliente): listar clientes na JTable"
+git push -u origin clientes-contadores
 ```
 
-`git add .` deve ser precedido por `git status` para garantir que não inclui ficheiros secretos ou gerados.
+Quando uma parte funcionar (ex.: clientes completos), abrir **Pull Request para `main`**, pedir a **um** colega para rever e fazer *merge* quando compilar e funcionar.
 
-## GitHub Projects
+Para apanhar o trabalho dos outros enquanto continuas na tua branch:
 
-Estados recomendados: `Todo`, `In Progress`, `In Review`, `Done`. Uma Issue em `Done` deve ter PR integrado, testes e critérios de aceitação cumpridos. Etiquetas: `opcao-1` ... `opcao-6`, `swing`, `jdbc`, `bug`, `integration`, `documentation`.
+```bash
+git checkout main && git pull
+git checkout clientes-contadores
+git merge main
+```
 
-## Regras adicionais
+## Regras
 
-- Não editar `main` directamente.
-- Não fazer `force push` em branches partilhadas sem decisão colectiva.
-- Nunca publicar `application.properties` com passwords, dumps reais ou pastas `target/`.
-- Combinar mudança de `pom.xml`, esquema SQL e interfaces partilhadas.
-- Quando duas pessoas editam a mesma classe, definir quem é o responsável principal pelo ficheiro.
-
+- Não fazer `push --force` em `main`.
+- Não versionar `application.properties`, `target/`, dumps da BD.
+- Avisar o grupo antes de mexer no `pom.xml`, no SQL ou em ficheiros de outro membro.
+- Cada membro faz os seus próprios commits; não pôr nomes de pessoas ou ferramentas como autor/co-autor de trabalho que não fizeram.
 
 ---
 
 <!-- Ficheiro: docs/interno/05_TAREFAS_E_FASES.md -->
 
-# Tarefas, fases e dependências
+# Tarefas e fases
 
-## Etapa 0 — decisões comuns (toda a equipa)
+## Fase 0 — arranque (todos, meio dia)
 
-- [ ] Preencher nomes/responsabilidades.
-- [ ] Fixar JDK, Maven, MySQL e política de configuração local.
-- [ ] Decidir se a aplicação usa **Anexo A puro** (recomendação inicial) ou A+C.
-- [ ] Congelar nomes, tipos e assinaturas dos métodos entre módulos.
-- [ ] Definir `utilizador`/perfis e acesso inicial de teste.
-- [ ] Estabelecer padrões de Swing (look & feel, dimensões, formulários).
+- [ ] Membro 1 integra a branch `autenticacao` em `main`, com `database/02_autenticacao.sql` e `application.properties.example` (ver [`elementos/01_ARQUITECTURA_AUTENTICACAO.md`](elementos/01_ARQUITECTURA_AUTENTICACAO.md)).
+- [ ] Cada membro: importa o Anexo A + `02_autenticacao.sql`, cria o admin inicial e consegue fazer login.
+- [ ] Membro 6 publica cedo um `MainFrame` vazio com o método `adicionarModulo(...)`, para os outros encaixarem os painéis.
+- [ ] Preencher os nomes em [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md).
 
-## Etapa 1 — base compilável (Opção 1 + apoio 6)
+## Fase 1 — o CRUD simples de cada um (em paralelo)
 
-- [ ] Criar repositório, `pom.xml`, `.gitignore` e packages.
-- [ ] Implementar `Main`, `DatabaseConnection` e teste básico JDBC.
-- [ ] Criar Models/assinaturas acordadas, sem multiplicar lógica duplicada.
-- [ ] Preparar `MainFrame`/navegação com painéis vazios temporários.
+- [ ] Membro 2: `Tarifa` (listar + criar).
+- [ ] Membro 3: `Contrato` (listar, criar, mudar estado).
+- [ ] Membro 4: `Cliente` (listar, pesquisar, criar, editar).
+- [ ] Membro 5: `Funcionario` (listar, criar, editar; só ADMIN).
+- [ ] Membro 6: `MainFrame` com menu + Dashboard com 4 contagens.
 
-## Etapa 2 — primeiros casos de uso em paralelo
+Ao terminar: Pull Request para `main`.
 
-- [ ] Opção 1: login/logout, perfis e sessão.
-- [ ] Opção 4: CRUD cliente com JTable e validações.
-- [ ] Opção 5: CRUD funcionário e reclamações simples.
-- [ ] Opção 6: Dashboard com consultas reais disponíveis e auxílio aos formulários.
-- [ ] Opção 2: `Tarifa`, `TarifaDAO`, gestão e testes de vigência.
-- [ ] Opção 3: `Contrato`, `ContratoDAO`, consultas e alterações de estado.
+## Fase 2 — a segunda entidade de cada um
 
-## Etapa 3 — relações e operações complexas
+- [ ] Membro 2: emitir `Fatura` + listar facturas.
+- [ ] Membro 3: registar `Pagamento` + ver saldo.
+- [ ] Membro 4: registar `Contador` num contrato + mudar estado.
+- [ ] Membro 5: `Reclamacao` (abrir, atribuir responsável, resolver).
+- [ ] Membro 6: script de dados de demonstração + guia de execução testado.
 
-- [ ] Opção 4: contador ligado ao contrato; troca de contador.
-- [ ] Opção 2: `FaturaService`/`FaturaDAO`, cálculo de consumo e emissão.
-- [ ] Opção 3: pagamento transaccional e saldo consistente.
-- [ ] Opção 5: atribuir e resolver reclamações.
-- [ ] Opção 1: autorização real em Controller/Service e suporte técnico à integração.
+Ao terminar: Pull Request para `main`.
 
-## Etapa 4 — integração e testes
+## Fase 3 — integração e ensaio (todos)
 
-- [ ] Fazer login → seleccionar cliente → consultar contrato → contador → factura → pagamento.
-- [ ] Verificar restrições de autenticação, tarifa, estados, leituras e pagamentos.
-- [ ] Testar erros SQL sem bloquear Swing.
-- [ ] Testar concorrência de pagamentos, com duas sessões/threads se o grupo tiver ambiente adequado.
-- [ ] Rever permissões do Dashboard e menus.
+- [ ] Percorrer o fluxo: login → cliente → contrato → contador → factura → pagamento → Dashboard.
+- [ ] Correr os testes manuais de [`06_TESTES_E_CRITERIOS.md`](06_TESTES_E_CRITERIOS.md).
+- [ ] `mvn clean test` passa em `main`.
+- [ ] Cada membro ensaia a sua demonstração (2–3 minutos).
 
-## Etapa 5 — entrega
-
-- [ ] Confirmar `mvn clean test`, arranque e execução em máquina limpa.
-- [ ] Actualizar README e documentação de execução.
-- [ ] Preparar dados fictícios reproduzíveis de demonstração.
-- [ ] Remover documentação interna temporária **se essa for a decisão da equipa**.
-- [ ] Rever histórico para evitar segredos; remover ficheiros não apaga commits antigos.
-- [ ] Tag/release estável em `main` e ensaio de apresentação por cada elemento.
-
-## Prioridade, não duração fixa
-
-Uma etapa pode começar antes de outra terminar se os contratos estiverem acordados. Nenhum elemento deve esperar pelos outros para construir a sua própria View ou escrever testes unitários. Integrações pequenas e frequentes são preferíveis a uma junção final de seis branches enormes.
-
+Não há durações fixas: uma fase pode começar antes de outra acabar. Usem os dados de exemplo do Anexo A para não ficarem à espera dos colegas.
 
 ---
 
 <!-- Ficheiro: docs/interno/06_TESTES_E_CRITERIOS.md -->
 
-# Plano de testes e definição de concluído
+# Testes e definição de concluído
 
-## Uma tarefa só está concluída se...
+## Uma tarefa está concluída quando...
 
-- [ ] O código compila e respeita os packages/nomenclatura combinados.
-- [ ] A funcionalidade usa o MySQL por JDBC, sem simular dados numa lista fixa (excepto fixtures de teste).
-- [ ] Casos de sucesso e pelo menos um caso de erro foram testados.
-- [ ] Os dados apresentados na JTable são recarregados após actualizar.
-- [ ] A interface não fica inutilizável durante consultas lentas.
-- [ ] As regras de negócio aplicáveis são respeitadas.
-- [ ] Há instruções de teste suficientes no Pull Request.
-- [ ] O código foi revisto e integrado em `develop`.
+- [ ] Compila e a aplicação abre.
+- [ ] Os dados vêm da BD por JDBC (nada de listas inventadas no código).
+- [ ] A `JTable` actualiza depois de inserir/editar.
+- [ ] Um caso de sucesso e um caso de erro foram testados à mão.
+- [ ] O Pull Request diz como testar.
 
-## Matriz mínima de testes
+## Testes automáticos (JUnit)
+
+Só onde há cálculo, para não gastar tempo:
+
+- Membro 2: cálculo do consumo, do valor-base (com consumo mínimo) e da data de vencimento.
+- Membro 1: já tem testes de `PasswordHasher`, `Sessao`, `Perfil` e `UtilizadorService`.
+
+Os outros módulos testam-se manualmente com a tabela abaixo.
+
+## Testes manuais (para fazer antes da apresentação)
 
 | ID | Módulo | Teste | Esperado |
 |---|---|---|---|
-| T01 | Login | credenciais válidas / inválidas | entra ou mostra erro, sem revelar password |
-| T02 | Perfil | OPERADOR tenta gerir utilizadores | operação recusada também na lógica |
-| T03 | Cliente | NUIT duplicado | validação/erro por UNIQUE, sem inserção duplicada |
-| T04 | Contrato | terminar sem data de fim | não permitido |
-| T05 | Contador | segundo contador activo no mesmo contrato | recusado pela regra de negócio/UNIQUE |
-| T06 | Tarifa | períodos sobrepostos para o mesmo tipo | não permitido |
-| T07 | Tarifa | consultar tarifa de data passada | tarifa histórica correcta |
-| T08 | Factura | leitura inferior à anterior | não emitida |
-| T09 | Factura | período já faturado no mesmo contador | não emitida |
-| T10 | Factura | técnico que não é `tecnico_leitura` | não emitida |
-| T11 | Factura | consumo real inferior ao mínimo | factura pelo consumo mínimo |
-| T12 | Pagamento | valor supera saldo | nenhum pagamento inserido |
-| T13 | Pagamento | duas tentativas simultâneas de pagar o mesmo saldo | total pago não ultrapassa saldo |
-| T14 | Pagamento | M-Pesa com `registado_por` preenchido | não permitido |
-| T15 | Reclamação | `em_tratamento` sem responsável | não permitido |
-| T16 | Reclamação | `resolvida` sem data de fecho | não permitido |
-| T17 | Histórico | nova tarifa após factura antiga | valor-base antigo não muda |
-| T18 | Dashboard | resumo após inserir dados | números actualizados, obtidos da BD |
+| T01 | Login | password errada / certa | erro / entra |
+| T02 | Perfil | OPERADOR abre o menu | não vê Funcionários nem "Nova tarifa" |
+| T03 | Cliente | NUIT repetido | recusado, cliente não duplicado |
+| T04 | Contrato | passar a `terminado` sem data de fim | recusado |
+| T05 | Contador | segundo contador activo no mesmo contrato | recusado |
+| T06 | Tarifa | nova tarifa com início anterior ao da vigente | recusada |
+| T06b | Tarifa | nova tarifa válida | a anterior fica com `data_fim` = véspera do início da nova |
+| T07 | Factura | leitura actual menor que a anterior | não emitida |
+| T08 | Factura | consumo abaixo do mínimo | cobra o consumo mínimo |
+| T09 | Factura | segunda factura no mesmo mês para o mesmo contador | recusada |
+| T10 | Pagamento | valor maior que o saldo | recusado |
+| T11 | Pagamento | pagamento que liquida o saldo | factura passa a `paga` |
+| T12 | Reclamação | `resolvida` | data de fecho preenchida |
+| T13 | Dashboard | inserir um cliente e voltar ao Dashboard | número aumenta |
 
-## Dados para demonstração
+**Exemplo de cálculo para T08:** leitura anterior 120, actual 123, mínimo 5, preço 45 → consumo 3, cobra 5 → `valor_base = 225.00 MT`.
 
-O Anexo A já contém dados **de exemplo**. Nunca testar inserções destrutivas numa base importante; usar instância de desenvolvimento separada. Evitar assumir que IDs começam sempre por 1 ou que uma factura específica estará presente. Recriar estado de teste quando necessário, lembrando que o Anexo A apaga a base de dados com `DROP DATABASE`.
+## Dados de teste
 
-## Tipos de teste
-
-- **Unitário:** cálculos do consumo e do valor-base, validações independentes da BD.
-- **Integração:** DAO ↔ MySQL, transacções, constraints e triggers.
-- **Interface:** botões, JTable, JComboBox, diálogos e navegação.
-- **Aceitação:** percorrer os casos de uso como um funcionário faria.
-
-## Bugs no GitHub
-
-Issue de bug deve conter ambiente, passos para reproduzir, resultado esperado, resultado obtido e evidência (sem informações sensíveis). Não encerrar bugs com apenas uma explicação textual: corrigir e retestar.
-
+O Anexo A já traz dados de exemplo e faz `DROP DATABASE` ao ser executado: usar só numa BD de desenvolvimento. Para recomeçar do zero, basta voltar a correr o Anexo A + `02_autenticacao.sql` + script de demonstração.
 
 ---
 
 <!-- Ficheiro: docs/interno/elementos/01_ARQUITECTURA_AUTENTICACAO.md -->
 
-# Opção 1 — Arquitectura, JDBC e autenticação
+# Membro 1 — Base do projecto, JDBC e autenticação
 
-**Nível:** difícil  
-**Responsável:** [NOME]  
-**Branch sugerida:** `feature/autenticacao`
+**Estado:** feito (branch `autenticacao`)  
+**Responsável:** [NOME]
 
-## Resultado esperado
-
-Projecto Maven compila e arranca; JDBC comunica com MySQL; funcionários autorizados fazem login; ADMIN e OPERADOR vêem/acedem apenas às operações permitidas; existe um ponto central para conexão e sessão.
-
-## Classes e ficheiros sob a tua responsabilidade
+## O que já existe
 
 ```text
-pom.xml
-src/main/java/mz/agua/Main.java
-src/main/java/mz/agua/config/DatabaseConnection.java
-src/main/java/mz/agua/model/Usuario.java
-src/main/java/mz/agua/dao/UsuarioDAO.java
-src/main/java/mz/agua/controller/LoginController.java
-src/main/java/mz/agua/service/AutenticacaoService.java
-src/main/java/mz/agua/view/LoginFrame.java
-src/main/java/mz/agua/util/Sessao.java
-# componentes de autorização/perfis, se necessários
-database/02_autenticacao.sql
+pom.xml (JDK 21, driver MariaDB, bcrypt, JUnit 5)
+Main.java                        arranque, login, logout (terminarSessaoEVoltarAoLogin)
+config/DatabaseConnection.java   getConnection, executar, emTransaccao, testarLigacao
+model/Usuario.java, Perfil.java
+dao/UsuarioDAO.java
+service/AutenticacaoService.java, UtilizadorService.java
+controller/LoginController.java
+view/LoginFrame.java
+util/Sessao.java, PasswordHasher.java, CriarAdminInicial.java
+exception/ValidacaoException, PersistenciaException, AcessoNegadoException, AutenticacaoException
+testes: PerfilTest, PasswordHasherTest, SessaoTest, UtilizadorServiceTest
 ```
 
-## Tarefas
+## Falta para os outros conseguirem arrancar
 
-- [ ] Criar `pom.xml`, packages, `.gitignore`, `Main.java` e dependência JDBC.
-- [ ] Definir como criar e fechar Connection e como gerir transacções multi-DAO.
-- [ ] Criar extensão SQL `utilizador`, ligada a `funcionario` por FK única; `username` único, hash de password, perfil e estado.
-- [ ] Implementar autenticação segura (hash apropriado), conta inactiva e saída da sessão.
-- [ ] Implementar controlo de acesso nos Controllers/Services; não apenas ocultar botões.
-- [ ] Confirmar com a Opção 5 métodos de consulta de funcionário.
-- [ ] Definir e publicar contratos de integração com todas as opções.
-- [ ] Rever PRs estruturais (`pom.xml`, schema, packages, Connection).
-- [ ] Testar login válido, inválido, conta inactiva e permissões.
+O código refere ficheiros que **não estão no repositório**. Sem eles ninguém consegue fazer login:
 
-## Dependências
+- [ ] `database/02_autenticacao.sql` — `CREATE TABLE utilizador (...)` usado pelo `UsuarioDAO`.
+- [ ] `application.properties.example` — modelo com `db.url`, `db.user`, `db.password` (sem valores reais).
+- [ ] Instruções no [guia de execução](../../guia-de-execucao.md): como correr `CriarAdminInicial` para criar o primeiro ADMIN.
+- [ ] Apagar `pom21312.xml` se for um ficheiro de teste esquecido.
+- [ ] Abrir Pull Request `autenticacao` → `main`.
 
-Opção 5 fornece `FuncionarioDAO`/modelo; Opção 6 fornece `MainFrame` e navegação. Tu forneces ligação JDBC e sessão a todos.
+## Depois disso
 
-## Critérios de aceitação
+Apoiar os colegas com dúvidas de JDBC/`DatabaseConnection` e rever Pull Requests que toquem em `pom.xml` ou SQL. Não é preciso fazer mais funcionalidades.
 
-- Login consulta efectivamente o MySQL.
-- Password não está em texto simples no esquema, no código ou nos logs.
-- ADMIN/OPERADOR bloqueiam operações mesmo se se tentar invocar o Controller directamente.
-- `DatabaseConnection` é utilizado pelos restantes módulos sem configurações duplicadas.
-- Maven compila a estrutura inicial; não existem credenciais versionadas.
+## Demonstração
 
-**Não fazer:** concentrar todas as funcionalidades num único Controller, alterar entidades de outros membros sem acordo ou criar classes fictícias apenas para a interface parecer funcional.
-
+Login válido e inválido; ADMIN vê menus que o OPERADOR não vê; logout; explicar `DatabaseConnection` (ligação nova por operação, credenciais fora do código) e o hash da password.
 
 ---
 
 <!-- Ficheiro: docs/interno/elementos/02_TARIFAS_FACTURACAO.md -->
 
-# Opção 2 — Tarifas e facturação
+# Membro 2 — Tarifas e facturas
 
-**Nível:** difícil  
+**Nível:** médio  
 **Responsável:** [NOME]  
-**Branch sugerida:** `feature/facturacao-tarifas`
+**Branch:** `facturacao`  
+**Estado:** código feito e testes unitários a passar; falta testar com a BD (testes manuais T06–T09).
 
-## Resultado esperado
+## Resultado
 
-Consultar/gerir tarifas sem sobreposição e emitir facturas correctas, com cálculos baseados nos dados reais do contador, contrato, data e tarifa.
+Ver e criar tarifas; emitir uma factura a partir de uma leitura, com o valor calculado correctamente; listar facturas.
 
-## Classes e ficheiros
+## Classes
 
 ```text
-model/Tarifa.java
-model/Fatura.java
-dao/TarifaDAO.java
-dao/FaturaDAO.java
-service/TarifaService.java
-service/FaturaService.java
-controller/TarifaController.java
-controller/FaturaController.java
-view/panels/TarifaPanel.java
-view/panels/FaturaPanel.java
-view/dialogs/TarifaDialog.java
-view/dialogs/EmissaoFaturaDialog.java
+model/Tarifa.java, model/Fatura.java
+dao/TarifaDAO.java, dao/FaturaDAO.java
+service/FaturaService.java            cálculos + emissão
+controller/TarifaController.java, controller/FaturaController.java
+view/TarifaPanel.java, view/TarifaDialog.java
+view/FaturaPanel.java, view/EmissaoFaturaDialog.java
+test/.../FaturaServiceTest.java
+util/Formatos.java                    ler/mostrar datas dd/mm/aaaa e números dos formulários (pode ser usado por todos)
+test/.../view/ExperimentarFacturacao  TEMPORÁRIO: abre Tarifas e Facturas sem MainFrame; apagar depois da integração
 ```
 
-## Regras do minimundo
+## Tarefas
 
-- **RN12–14:** `preco_por_m3 > 0`, `consumo_minimo > 0` (default 5); vigências por tipo sem sobreposição; procurar tarifa conforme `tipo_contrato` e `data_leitura`.
-- **RN15:** emitir apenas para contrato **e** contador activos.
-- **RN16:** máximo uma factura por `(id_contador, ano_referencia, mes_referencia)`.
-- **RN17–18:** leitura anterior = última leitura actual do contador, ou `leitura_inicial`; leitura actual >= anterior.
-- **RN19:** técnico da leitura tem cargo `tecnico_leitura` (trigger já existe).
-- **RN20:** `valor_base = max(leitura_atual - leitura_anterior, consumo_minimo) * preco_por_m3`.
-- **RN21:** conservar tarifa e valor-base históricos; não recalcular faturas antigas com preço novo.
-- **RN22:** vencimento no dia 10 do mês seguinte à **emissão**, não à leitura.
-- **RN23:** estado inicial `pendente`.
+### Tarifas
 
-## Tarefas ordenadas
+- [x] `TarifaPanel`: `JTable` com todas as tarifas (tipo, preço, mínimo, início, fim).
+- [x] Botão "Nova tarifa" (só ADMIN): tipo, preço, mínimo, data de início.
+- [x] Ao gravar, numa transacção (`DatabaseConnection.emTransaccao`): fechar a tarifa vigente do mesmo tipo (`data_fim = início_nova - 1 dia`) e inserir a nova. Recusar se a data de início não for posterior à da vigente.
+  - Porquê: o trigger do Anexo A recusa qualquer tarifa nova enquanto a vigente tiver `data_fim = NULL`.
+- [x] `TarifaDAO.buscarVigente(tipoContrato, data)`.
 
-- [ ] Mapear atributos de `tarifa` e `fatura` exactamente do Anexo A.
-- [ ] Implementar `TarifaDAO`: listar, pesquisar por tipo/data, criar tarifa, fechar vigência (com validação de RN13).
-- [ ] Implementar `TarifaPanel` e `TarifaDialog`; edição de preço histórico usada em facturas **proibida**.
-- [ ] Implementar `FaturaService` com `BigDecimal`, cálculo e testes unitários.
-- [ ] Acordar com Opção 3 obtenção de contrato e com Opção 4 contador activo/leitura inicial.
-- [ ] Acordar com Opção 5 listagem de técnicos `tecnico_leitura`.
-- [ ] Implementar `FaturaDAO` e emissão transaccional, tratando factura duplicada.
-- [ ] Implementar `FaturaPanel`/`EmissaoFaturaDialog`: seleccionar dados, simular valor-base, confirmar emissão e listar.
-- [ ] Consultar facturas por cliente/contrato, via caminho `fatura → contador → contrato → cliente`.
-- [ ] Testar RN12–23 e histórico de tarifas.
+### Facturas
 
-## Dados de `fatura` que deves persistir
+- [x] `EmissaoFaturaDialog`: escolher contrato activo → mostrar contador activo e **leitura anterior** → escrever mês/ano, data da leitura, leitura actual → escolher técnico (`tecnico_leitura`) → botão "Calcular" mostra consumo e valor → "Emitir".
+- [x] `FaturaService`:
+  - leitura anterior = última `leitura_atual` do contador (`ORDER BY ano_referencia DESC, mes_referencia DESC LIMIT 1`), senão `leitura_inicial`;
+  - `valor_base = max(actual - anterior, consumo_minimo) × preco_por_m3` (`BigDecimal`, 2 casas);
+  - `data_emissao` = hoje; `data_vencimento` = dia 10 do mês seguinte à emissão;
+  - validar: leitura actual ≥ anterior; existe tarifa vigente para o tipo do contrato na data da leitura.
+- [x] `FaturaDAO.inserir(...)` com `estado_fatura = 'pendente'`, `valor_multa = 0`.
+- [x] `FaturaPanel`: `JTable` com facturas (nº, cliente, contador, mês/ano, valor, estado).
+- [x] `FaturaDAO.listarPendentes()` e `buscarPorId(int)` para o Membro 3.
+- [x] JUnit: consumo normal, consumo abaixo do mínimo, leitura decrescente, vencimento (incluindo emissão em Dezembro → 10 de Janeiro).
 
-`mes_referencia`, `ano_referencia`, `data_leitura`, `leitura_anterior`, `leitura_atual`, `data_emissao`, `data_vencimento`, `valor_base`, `valor_multa`, `estado_fatura`, `id_contador`, `id_tarifa`, `id_funcionario`. `id_fatura` é auto-incrementado. `valor_pago`, `consumo_m3`, `valor_total`, `saldo_em_divida` **não são colunas do Anexo A**: o Anexo C muda isso; consultar a decisão da equipa.
+A BD já recusa: factura duplicada no mesmo mês, técnico que não é `tecnico_leitura`, leitura decrescente.
 
-## Dependências
+## Precisa de
 
-- Opção 1: JDBC e sessão.
-- Opção 3: contratos e integração com pagamentos (tua responsabilidade não é registar pagamentos).
-- Opção 4: contadores activos e leitura inicial.
-- Opção 5: técnicos de leitura.
-- Opção 6: menu e consistência visual.
+Membro 3: `ContratoDAO.listarActivos()`; Membro 4: `ContadorDAO.buscarActivoPorContrato()`; Membro 5: `FuncionarioDAO.listarPorCargo("tecnico_leitura")`. Até estarem em `main`, o `FaturaDAO` tem consultas próprias temporárias (secção "TEMPORÁRIO") sobre os dados do Anexo A.
 
-## Aceitação e testes
+## Demonstração
 
-- [ ] Tarifa vigente correcta por tipo/data e erro em caso de período sobreposto.
-- [ ] Exemplo: leitura anterior 120, actual 123, mínimo 5, preço 45 → `valor_base = 225.00 MT`.
-- [ ] Não emite factura para contrato cortado ou contador inactivo.
-- [ ] Não emite leitura decrescente, duplicada ou de técnico não autorizado.
-- [ ] Data de vencimento e valor-base persistidos correctamente.
-- [ ] A criação de uma tarifa nova **não altera** facturas antigas.
-- [ ] Interface não executa SQL e não bloqueia o utilizador em consultas demoradas.
+Criar uma tarifa nova e mostrar que a anterior foi fechada; emitir factura com leitura 120 → 123 (mínimo 5, preço 45) e mostrar `225.00 MT`; tentar leitura menor que a anterior.
 
-**Cuidado:** não criar classe/tabela `Leitura` autónoma e não implementar `PagamentoDAO` por conta própria.
-
+**Fora do âmbito:** editar tarifas, multas, estado `vencida`, simulação de várias tarifas por período.
 
 ---
 
 <!-- Ficheiro: docs/interno/elementos/03_CONTRATOS_PAGAMENTOS.md -->
 
-# Opção 3 — Contratos e pagamentos
+# Membro 3 — Contratos e pagamentos
 
-**Nível:** difícil  
+**Nível:** médio  
 **Responsável:** [NOME]  
-**Branch sugerida:** `feature/contratos-pagamentos`
+**Branch:** `contratos-pagamentos`
 
-## Resultado esperado
+## Resultado
 
-Criar/consultar contratos e efectuar pagamentos totais ou parciais respeitando os estados, as FKs e a concorrência.
+Criar contratos e mudar o seu estado; registar pagamentos (totais ou parciais) de facturas, sem ultrapassar o saldo.
 
-## Classes e ficheiros
+## Classes
 
 ```text
-model/Contrato.java
-model/Pagamento.java
-dao/ContratoDAO.java
-dao/PagamentoDAO.java
-service/ContratoService.java
+model/Contrato.java, model/Pagamento.java
+dao/ContratoDAO.java, dao/PagamentoDAO.java
 service/PagamentoService.java
-controller/ContratoController.java
-controller/PagamentoController.java
-view/panels/ContratoPanel.java
-view/panels/PagamentoPanel.java
-view/dialogs/ContratoDialog.java
-view/dialogs/RegistoPagamentoDialog.java
+controller/ContratoController.java, controller/PagamentoController.java
+view/ContratoPanel.java, view/ContratoDialog.java
+view/PagamentoPanel.java, view/PagamentoDialog.java
 ```
 
 ## Tarefas
 
-- [ ] Criar Models exactamente do Anexo A.
-- [ ] Implementar CRUD operacional de contratos (criar, listar, pesquisar, alterar estados permitidos).
-- [ ] Validar `tipo_contrato`, datas e RN05: contrato `terminado` tem `data_fim` e não volta a activo.
-- [ ] Coordenar primeira criação cliente+contrato com Opção 4.
-- [ ] Implementar selecção de factura, apresentação de valor, total já pago e saldo.
-- [ ] Implementar registo de pagamento JDBC **transaccional**: bloquear factura `SELECT ... FOR UPDATE`, recalcular saldo, validar, inserir `pagamento`, actualizar estado se pago, `commit`; em erro `rollback`.
-- [ ] Implementar RN38: `registado_por = NULL` para `mpesa` e `emola`, preenchido nos outros métodos.
-- [ ] Garantir número único de recibo e proibir pagamento acima do saldo ou de factura paga.
-- [ ] Discutir com Opção 2 a origem do saldo e diferenças entre Anexo A e C.
-- [ ] Testar pagamentos parciais, recibo duplicado, pagamento exacto e concorrente.
-- [ ] Definir com a equipa o alcance das multas e da mudança automática de estados.
+### Contratos
 
-## Integrações
+- [ ] `ContratoPanel`: `JTable` (nº, cliente, tipo, estado, início, bairro) + filtro por estado.
+- [ ] `ContratoDialog` "Novo": escolher cliente (combo), tipo, data de início, morada de fornecimento (rua, nº porta, quarteirão, bairro). Estado inicial `activo`.
+- [ ] Botão "Mudar estado": combo `activo`/`suspenso`/`cortado`/`terminado`. Se `terminado`, pedir data de fim. Contrato já `terminado` não muda mais.
+- [ ] `ContratoDAO.listarActivos()` e `buscarPorId(int)` para os Membros 2 e 4.
 
-- Opção 4: clientes/contadores; Opção 2: facturas e tarifas; Opção 5: funcionário que regista; Opção 1: sessão JDBC; Opção 6: menu.
+### Pagamentos
 
-## Critérios de aceitação
+- [ ] `PagamentoPanel`: lista de facturas pendentes (do `FaturaDAO` do Membro 2) com valor, total pago e saldo; por baixo, os pagamentos da factura seleccionada.
+- [ ] `PagamentoDialog`: valor, data, método (combo), número de recibo.
+- [ ] `PagamentoService.registar(...)` dentro de `DatabaseConnection.emTransaccao`:
+  1. calcular saldo = `valor_base + valor_multa - SUM(pagamento.valor)`;
+  2. recusar se valor ≤ 0 ou valor > saldo;
+  3. `registado_por` = `Sessao.getIdFuncionarioAutenticado()` para `dinheiro`/`transferencia`/`cartao`, `NULL` para `mpesa`/`emola`;
+  4. inserir pagamento;
+  5. se o saldo ficar 0, `UPDATE fatura SET estado_fatura = 'paga'`.
+- [ ] `PagamentoDAO.totalPago(int idFatura)`.
 
-- [ ] Contratos associados a clientes válidos, datas consistentes e estados legais.
-- [ ] Pagamentos parciais mantêm saldo positivo; último pagamento fecha saldo e marca factura paga.
-- [ ] Duas operações concorrentes nunca ultrapassam o saldo.
-- [ ] Métodos móveis/canais ao balcão cumprem o CHECK RN38.
-- [ ] O histórico de pagamentos existe e não é apagado nem alterado (RN40).
-- [ ] Sem SQL na View nem consultas bloqueantes na EDT.
+A BD já recusa: recibo repetido, valor ≤ 0, `registado_por` errado para o método.
 
-**Cuidado:** `saldo_em_divida` não é uma coluna em Anexo A; só existe como coluna gerada se a equipa aplicar Anexo C.
+## Precisa de
 
+Membro 4: `ClienteDAO.listar()`; Membro 2: `FaturaDAO.listarPendentes()`. Até estarem em `main`, usar consultas próprias temporárias.
+
+## Demonstração
+
+Criar contrato para um cliente; tentar terminar sem data de fim; pagar parte de uma factura, depois o resto, e ver a factura passar a `paga`; tentar pagar acima do saldo.
+
+**Fora do âmbito:** `SELECT ... FOR UPDATE`/concorrência, multas, corte/religação automáticos, alterar/apagar pagamentos.
 
 ---
 
 <!-- Ficheiro: docs/interno/elementos/04_CLIENTES_CONTADORES.md -->
 
-# Opção 4 — Clientes e contadores
+# Membro 4 — Clientes e contadores
 
-**Nível:** médio  
+**Nível:** fácil/médio  
 **Responsável:** [NOME]  
-**Branch sugerida:** `feature/clientes-contadores`
+**Branch:** `clientes-contadores`
 
-## Resultado esperado
+## Resultado
 
-CRUD completo de clientes, pesquisa, consulta dos contratos e gestão de contadores ligados aos contratos, com no máximo um activo.
+Registar, pesquisar e editar clientes; registar contadores nos contratos e mudar o seu estado.
 
-## Classes e ficheiros
+## Classes
 
 ```text
-model/Cliente.java
-model/Contador.java
-dao/ClienteDAO.java
-dao/ContadorDAO.java
-service/ContadorService.java
-controller/ClienteController.java
-controller/ContadorController.java
-view/panels/ClientePanel.java
-view/panels/ContadorPanel.java
-view/dialogs/ClienteDialog.java
-view/dialogs/ContadorDialog.java
+model/Cliente.java, model/Contador.java
+dao/ClienteDAO.java, dao/ContadorDAO.java
+controller/ClienteController.java, controller/ContadorController.java
+view/ClientePanel.java, view/ClienteDialog.java
+view/ContadorPanel.java, view/ContadorDialog.java
 ```
 
 ## Tarefas
 
-- [ ] Mapear os sete campos de `cliente`, sem inventar campos de morada.
-- [ ] Fazer `ClienteDAO` para inserir, procurar por nome/ID, listar e actualizar.
-- [ ] Criar `JTable` com pesquisa e formulários com validação.
-- [ ] Validar `nome_completo`, `telefone`, rua, número e bairro obrigatórios; `nuit` opcional e único.
-- [ ] Implementar `ContadorDAO`: criar contador, procurar por contrato, actualizar estado e data de remoção.
-- [ ] Garantir número de série único, leitura inicial não negativa e datas consistentes.
-- [ ] Fazer troca de contador com desactivação do antigo e activação do novo de forma consistente.
-- [ ] Acordar com Opção 3 como escolher contratos válidos/activos.
-- [ ] Entregar métodos para Opção 2 consultar contador activo e leitura inicial.
-- [ ] Testar erro para segundo contador activo no mesmo contrato (`uq_contador_activo`).
+### Clientes
 
-## Critérios de aceitação
+- [ ] `ClientePanel`: `JTable` + campo de pesquisa por nome (ou NUIT) + botões Novo/Editar.
+- [ ] `ClienteDialog`: nome completo, NUIT (opcional, 9 dígitos), telefone (≥ 8 caracteres), rua, nº casa, bairro.
+- [ ] Validar obrigatórios no Java. NUIT duplicado: a BD recusa (`UNIQUE`); mostrar a mensagem.
+- [ ] `ClienteDAO`: `listar()`, `pesquisar(termo)`, `buscarPorId(int)`, `inserir`, `actualizar`.
 
-- [ ] Inserção/pesquisa/actualização reflectidas em MySQL e JTable.
-- [ ] NUIT duplicado não cria cliente novo.
-- [ ] Não é possível associar dois contadores activos a um contrato.
-- [ ] Troca de contador preserva histórico e data de remoção.
-- [ ] `contador.activo` (gerado pelo MySQL) **não** é preenchido por Java.
-- [ ] Métodos de consulta usados pela facturação estão prontos e documentados.
+### Contadores
 
-**Cuidado:** a primeira contratação liga cliente+contrato; combinar com Opção 3 um fluxo coerente com o minimundo.
+- [ ] `ContadorPanel`: escolher contrato (combo) → `JTable` com os contadores desse contrato (nº série, instalação, leitura inicial, estado).
+- [ ] `ContadorDialog` "Novo": nº de série, data de instalação, leitura inicial (≥ 0).
+- [ ] Botão "Mudar estado": `activo`/`inactivo`/`avariado`; ao sair de `activo`, pedir data de remoção.
+- [ ] `ContadorDAO.buscarActivoPorContrato(int idContrato)` para o Membro 2.
+- [ ] Nunca escrever a coluna `activo` (é gerada pela BD).
 
+A BD já recusa: nº de série repetido, segundo contador activo no mesmo contrato, leitura inicial negativa.
+
+## Precisa de
+
+Membro 3: `ContratoDAO.listarActivos()` (até lá, consulta temporária).
+
+## Demonstração
+
+Registar e pesquisar cliente; tentar NUIT repetido; registar contador; tentar um segundo contador activo no mesmo contrato; trocar de contador (pôr o antigo `inactivo` e registar o novo).
+
+**Fora do âmbito:** apagar clientes, troca automática de contador numa transacção, histórico de moradas.
 
 ---
 
 <!-- Ficheiro: docs/interno/elementos/05_FUNCIONARIOS_RECLAMACOES.md -->
 
-# Opção 5 — Funcionários e reclamações
+# Membro 5 — Funcionários e reclamações
 
-**Nível:** médio  
+**Nível:** fácil/médio  
 **Responsável:** [NOME]  
-**Branch sugerida:** `feature/funcionarios-reclamacoes`
+**Branch:** `funcionarios-reclamacoes`
 
-## Resultado esperado
+## Resultado
 
-Gestão de funcionários pelo ADMIN e tratamento de reclamações por funcionários, incluindo atribuição e encerramento.
+O ADMIN regista e edita funcionários; qualquer funcionário abre reclamações de clientes e acompanha-as até `resolvida`.
 
-## Classes e ficheiros
+## Classes
 
 ```text
-model/Funcionario.java
-model/Reclamacao.java
-dao/FuncionarioDAO.java
-dao/ReclamacaoDAO.java
-controller/FuncionarioController.java
-controller/ReclamacaoController.java
-service/ReclamacaoService.java
-view/panels/FuncionarioPanel.java
-view/panels/ReclamacaoPanel.java
-view/dialogs/FuncionarioDialog.java
-view/dialogs/ReclamacaoDialog.java
+model/Funcionario.java, model/Reclamacao.java
+dao/FuncionarioDAO.java, dao/ReclamacaoDAO.java
+controller/FuncionarioController.java, controller/ReclamacaoController.java
+view/FuncionarioPanel.java, view/FuncionarioDialog.java
+view/ReclamacaoPanel.java, view/ReclamacaoDialog.java
 ```
 
 ## Tarefas
 
-- [ ] CRUD operacional de funcionários (sem apagar os associados a facturas/reclamações).
-- [ ] Validar `cargo` nos valores exactos do esquema: `tecnico_leitura`, `tecnico_manutencao`, `atendimento`, `supervisor`, `administrador`.
-- [ ] Disponibilizar consulta/listagem de técnicos `tecnico_leitura` à Opção 2.
-- [ ] Coordenação com Opção 1 para ligar `funcionario` a `utilizador`; não criar password em `funcionario`.
-- [ ] Criar reclamação associada apenas a `cliente` (não a contrato/contador).
-- [ ] Gerir atribuição de funcionário, estados (`aberta`, `em_tratamento`, `resolvida`) e datas.
-- [ ] Validar que `em_tratamento` requer responsável e `resolvida` requer data de fecho.
-- [ ] Implementar pesquisa por cliente, estado e funcionário responsável.
-- [ ] Testar restrições e permissões (gestão de funcionário apenas ADMIN).
+### Funcionários (só ADMIN)
 
-## Critérios de aceitação
+- [ ] `FuncionarioPanel`: `JTable` (nome, telefone, cargo) + Novo/Editar.
+- [ ] `FuncionarioDialog`: nome, telefone (opcional), cargo (combo com os 5 valores).
+- [ ] `Sessao.exigirAdmin()` no Controller antes de gravar.
+- [ ] `FuncionarioDAO.listarPorCargo(String cargo)` para o Membro 2 (técnicos de leitura).
 
-- [ ] Funcionário criado e pesquisável; cargo válido.
-- [ ] Funcionário com histórico ligado não é apagado.
-- [ ] Reclamação aberta pode estar sem responsável; em tratamento não pode.
-- [ ] Resolver preenche data de fecho coerente.
-- [ ] Opção 2 consegue listar técnicos leitores.
-- [ ] Gestão de funcionários está protegida por permissões no Controller/Service.
+### Reclamações
 
-**Cuidado:** `funcionario.cargo` não é o mesmo que o perfil de acesso `ADMIN`/`OPERADOR`.
+- [ ] `ReclamacaoPanel`: `JTable` (nº, cliente, tipo, estado, abertura, responsável) + filtro por estado.
+- [ ] `ReclamacaoDialog` "Nova": cliente (combo), tipo (combo), descrição. Data de abertura = hoje, estado `aberta`.
+- [ ] Botão "Atribuir": escolher funcionário responsável → estado `em_tratamento`.
+- [ ] Botão "Resolver": estado `resolvida`, `data_fecho` = hoje.
+- [ ] Validar: `em_tratamento` exige responsável; `resolvida` exige data de fecho.
 
+A BD já recusa as mesmas combinações inválidas (`CHECK`).
+
+## Precisa de
+
+Membro 4: `ClienteDAO.listar()` (até lá, consulta temporária).
+
+## Demonstração
+
+Entrar como ADMIN e registar funcionário; mostrar que o OPERADOR não vê o menu; abrir reclamação, atribuir e resolver.
+
+**Fora do âmbito:** apagar funcionários, criar contas de login, pesquisa avançada.
 
 ---
 
 <!-- Ficheiro: docs/interno/elementos/06_MAINFRAME_DASHBOARD_APOIO.md -->
 
-# Opção 6 — MainFrame, Dashboard, testes e apoio à equipa
+# Membro 6 — Janela principal, Dashboard e demonstração
 
-**Nível:** fácil (na lógica de negócio) + responsabilidade transversal de apoio  
+**Nível:** fácil  
 **Responsável:** [NOME]  
-**Branch sugerida:** `feature/dashboard-interface`
+**Branch:** `interface-dashboard`
 
-## Resultado esperado
+## Resultado
 
-Interface principal navegável, padrões visuais consistentes, Dashboard com dados reais e contributo activo para testes e correcções de usabilidade.
+Uma janela principal com menu para todos os módulos, um Dashboard com números reais e uma base de dados de demonstração pronta a usar.
 
-## Classes e ficheiros
+## Classes / ficheiros
 
 ```text
 view/MainFrame.java
-view/panels/DashboardPanel.java
-controller/DashboardController.java
+view/DashboardPanel.java
 dao/DashboardDAO.java
-view/components/               # componentes reutilizáveis aprovados
-# documentação de screenshots e testes, quando aplicável
+database/03_dados_demo.sql
+docs/guia-de-execucao.md (actualizar)
 ```
 
 ## Tarefas
 
-- [ ] Construir `MainFrame` com menu lateral e conteúdo central em `CardLayout`.
-- [ ] Criar pontos de navegação para os nove módulos, com placeholders apenas enquanto o módulo ainda não estiver pronto.
-- [ ] Garantir que ADMIN/OPERADOR vêem menus adequados à sessão, recebida da Opção 1.
-- [ ] Criar `DashboardPanel` com resumos SQL reais: contagem de clientes, contratos activos, facturas pendentes, reclamações abertas (ajustar consultas ao esquema congelado).
-- [ ] Definir padrões comuns de botões, filtros, tamanhos, tabelas e diálogos.
-- [ ] Ajudar os colegas a ajustar GridLayout, BorderLayout, JTable, JScrollPane, formulários e feedback visual.
-- [ ] Executar testes manuais dos módulos integrados e abrir Issues com resultados reproduzíveis.
-- [ ] Organizar screenshots ilustrativos e verificar documentação de execução.
-- [ ] Rever visualmente os painéis para consistência, sem alterar regras de negócio dos responsáveis.
+- [ ] **Primeiro e cedo:** `MainFrame` com menu lateral (botões) + área central em `CardLayout`, e o método `adicionarModulo(String nome, JPanel painel, boolean soAdmin)`. Publicar em `main` mesmo com painéis vazios, para os colegas encaixarem os seus.
+- [ ] Topo da janela: nome do funcionário e perfil (`Sessao.getUsuarioAutenticado()`) + botão "Sair" que fecha a janela e chama `Main.terminarSessaoEVoltarAoLogin()`.
+- [ ] Ligar o login ao `MainFrame`: em `Main.aoAutenticar` trocar o `JOptionPane` temporário (há um `TODO`) por `new MainFrame().setVisible(true)` — combinar com o Membro 1.
+- [ ] Esconder módulos `soAdmin` quando `!Sessao.isAdmin()`.
+- [ ] `DashboardPanel` com 4 cartões: total de clientes, contratos activos, facturas pendentes, reclamações abertas. Botão "Actualizar". Consultas `SELECT COUNT(*)` no `DashboardDAO`.
+- [ ] `03_dados_demo.sql`: alguns clientes, contratos, contadores e funcionários a mais (fictícios) para a apresentação.
+- [ ] Actualizar o guia de execução com os passos realmente testados (BD → config → admin → `mvn` → login).
+- [ ] Na Fase 3, correr os testes manuais T01–T13 e avisar os colegas dos problemas.
 
-## Como apoiar os outros
+## Demonstração
 
-Combinar com cada colega pequenas subtarefas: arrumar formulário, criar modelo de `JTable`, melhorar filtros, configurar `JScrollPane`, corrigir layout ou documentar casos de teste. Fazer mudanças em PRs atribuídos e coordenados; nunca substituir a autoria dos colegas sem acordo.
+Login → MainFrame; navegar pelos módulos; ADMIN vs OPERADOR; inserir um cliente e ver o Dashboard mudar; logout.
 
-## Critérios de aceitação
-
-- [ ] Troca de painéis não abre dezenas de JFrames.
-- [ ] Dashboard não contém números fictícios fixos no código.
-- [ ] Menus correspondem ao perfil e actualizam após autenticação.
-- [ ] `SwingWorker` (quando necessário) não bloqueia interface.
-- [ ] Pelo menos um registo de teste documentado em cada módulo integrado.
-- [ ] Guia de execução e lista de problemas conhecidos estão actualizados.
-
-**Cuidado:** embora seja a opção mais fácil, o Dashboard exige consultas JDBC e coordenação com os outros módulos.
-
+**Fora do âmbito:** gráficos, temas configuráveis, componentes Swing personalizados para os outros módulos.
 
 ---
 
 <!-- Ficheiro: docs/interno/09_DECISOES_PENDENTES.md -->
 
-# Decisões que a equipa precisa de confirmar
+# Decisões
 
-Este documento identifica **questões ainda não resolvidas**, para não confundir propostas de arquitectura com o esquema de BD II.
+Com a simplificação, as decisões que estavam pendentes ficam **fechadas** assim (o grupo pode mudar, mas avisa todos):
 
-| Decisão | Recomendação inicial | Quem aprova | Estado |
-|---|---|---|---|
-| Variante de BD | Anexo A sem Anexo C no primeiro incremento | Todos + Opção 1 | Pendente |
-| Versão do JDK | JDK 21 LTS, se todos dispuserem | Todos | Pendente |
-| Versão do MySQL | MySQL 8+ | Todos | Pendente |
-| Modelo de `utilizador` | Tabela separada com FK única para `funcionario`, hash e perfil | Opções 1 e 5 | Pendente |
-| Estrutura final dos DAOs | Uma convenção comum de Connection e excepções | Todos + Opção 1 | Pendente |
-| Enums Java | Enums com mapeamento para valores SQL | Todos | Pendente |
-| Primeira criação cliente+contrato | Fluxo coordenado, respeitando o minimundo | Opções 3 e 4 | Pendente |
-| Multas e corte/religação automáticos | Delimitar o que é do POO II; não inventar job sem acordo | Opções 2 e 3 | Pendente |
-| Estilo visual Swing | Tema comum de formulários e janelas | Opções 1 e 6 | Pendente |
-| Instrumentação de `log_transacao` | Definir escopo antes de incluir em cada operação | Opção 1 + Todos | Pendente |
+| Decisão | Fica |
+|---|---|
+| Variante de BD | **Anexo A puro** + `utilizador` (sem Anexo C) |
+| JDK / build | JDK 21, Maven (já no `pom.xml` do Membro 1) |
+| Base de dados | MySQL 8+ ou MariaDB (driver MariaDB já incluído) |
+| Ligação JDBC | `DatabaseConnection.executar` / `emTransaccao`; DAO recebe `Connection` no construtor |
+| Erros | `ValidacaoException` (regras), `PersistenciaException` (BD), `AcessoNegadoException` (permissões) |
+| ENUM do SQL em Java | `String` + `JComboBox` com os valores exactos (sem enums Java novos) |
+| Camada Service | só `FaturaService` e `PagamentoService` |
+| Primeiro contrato de um cliente | duas acções separadas: registar cliente (Membro 4), depois criar contrato escolhendo o cliente (Membro 3) |
+| Técnico da factura | escolhido numa combo com funcionários `tecnico_leitura` (pode não ser quem está logado) |
+| Multas, corte, religação | **fora do âmbito**; `valor_multa` = 0 |
+| Estado `vencida` da factura | fora do âmbito (só `pendente` → `paga`) |
+| Contas de utilizador | criadas pelo `CriarAdminInicial`/SQL; sem ecrã próprio |
+| `log_transacao` | não usado |
+| Estilo visual | o do `LoginFrame` serve de referência; Membro 6 dá cores/tamanhos comuns |
+| Branches | `main` + uma branch por membro; PR com 1 revisor |
 
-## Divergência a resolver
+## Ainda por confirmar
 
-O minimundo discute a **desnormalização de BD II** (`valor_pago` materializado e outras colunas geradas) em parte do texto. No entanto, o **Anexo A isolado** ainda não contém essas colunas. Só o Anexo C as introduz. Portanto, os DAOs precisam de ser escritos para a variante escolhida e testada — não combinar trechos SQL de versões diferentes.
-
-## Questões funcionais
-
-- A criação de um cliente no sistema deve ser seguida de um contrato; o minimundo pressupõe que clientes se registam ao celebrar o primeiro contrato. Decidir se o fluxo de primeira contratação será um assistente/transacção ou duas acções coordenadas.
-- O utilizador logado pode ter cargo de atendimento e registar uma factura **em nome do técnico leitor**, mas a `fatura.id_funcionario` deve apontar para funcionário com cargo `tecnico_leitura`.
-- O módulo de pagamentos deve implementar exactamente a RN38 dos canais móveis, sem simular ligações reais às carteiras digitais.
-- Sobre multas: a regra RN28 prevê execução diária na lógica transaccional de BD II; a aplicação POO II precisa de explicitar se haverá opção manual de administração, simulação controlada ou agendamento real.
-
-Preencher decisão, responsável e data após a discussão. Decisões fechadas passam a orientações normativas nos documentos de arquitectura e testes.
-
+- [ ] Nomes dos responsáveis em [`01_PLANO_E_DIVISAO.md`](01_PLANO_E_DIVISAO.md).
+- [ ] Data do ensaio geral.
 
 ---
 
 <!-- Ficheiro: docs/interno/08_CHECKLIST_ENTREGA.md -->
 
-# Checklist final e limpeza de documentação interna
+# Checklist final
 
 ## Antes da entrega
 
-- [ ] `main` tem uma versão estável e demonstrável (sem bugs bloqueantes).
-- [ ] `mvn clean test` funciona em máquina limpa com JDK/Maven definidos.
-- [ ] Existe procedimento reproduzível para preparar a base de desenvolvimento.
-- [ ] Login, clientes, contratos, contadores, tarifas, facturas, pagamentos, reclamações e funcionários cumprem o âmbito acordado.
-- [ ] A separação MVC/DAO é verificável no código.
-- [ ] `SwingWorker` ou abordagem equivalente impede travamentos nos fluxos lentos.
-- [ ] Dados de apresentação são fictícios e não contêm credenciais reais.
-- [ ] README, guia de execução e arquitectura reflectem o código realmente entregue.
-- [ ] Cada elemento sabe demonstrar o seu módulo e explicar JDBC, eventos Swing e classes.
+- [ ] `main` compila (`mvn clean test`) e a aplicação abre.
+- [ ] Guia de execução testado numa máquina de outro membro (BD do zero até ao login).
+- [ ] O fluxo login → cliente → contrato → contador → factura → pagamento → Dashboard funciona.
+- [ ] Testes manuais T01–T13 feitos ([`06_TESTES_E_CRITERIOS.md`](06_TESTES_E_CRITERIOS.md)).
+- [ ] Não há SQL nas Views; não há passwords no código nem no Git.
+- [ ] README e `docs/` descrevem o que foi realmente feito.
+- [ ] Dados de demonstração fictícios.
 
-## O que pode ser removido
+## Apresentação (cada membro, 2–3 minutos)
 
-**Pasta temporária opcional:** `docs/interno/` (distribuição de tarefas, progressos, regras internas e notas de organização). A `.github/ISSUE_TEMPLATE` pode ficar ou ser removida; os Issue/PR históricos podem manter-se no GitHub.
+1. Mostrar a sua funcionalidade na aplicação (um caso que funciona + um erro controlado).
+2. Abrir o código e explicar o caminho **View → Controller → DAO → JDBC → MySQL** com um exemplo.
+3. Explicar porque usa `PreparedStatement`.
+4. Membros 2 e 3: explicar o cálculo/regra e a transacção (`DatabaseConnection.emTransaccao`).
 
-**O que normalmente deve ficar:** `README.md`, `docs/arquitectura.md`, `docs/casos-de-uso.md`, `docs/guia-de-execucao.md`, scripts SQL realmente necessários, código-fonte, `pom.xml` e `.gitignore`.
+## Limpeza (opcional)
 
-### Exemplo de remoção na fase final
+`docs/interno/` pode ser removida no fim (`git rm -r docs/interno`). Isto não apaga o histórico do Git, por isso nunca versionar dados sensíveis.
 
-```bash
-git rm -r docs/interno
-git commit -m "docs: remover notas internas de coordenação"
-```
+## Autoria
 
-**Isto só retira os ficheiros do estado actual da branch; eles continuam acessíveis no histórico Git.** Se houver informações sensíveis, não as publicar desde o início. Não reescrever histórico por iniciativa própria sem acordo e sem compreender o efeito na equipa.
-
-## Preparação da defesa
-
-- Cada elemento apresenta um caso de uso do seu módulo.
-- Explicar o caminho View → Controller → Service → DAO → JDBC → MySQL.
-- Mostrar validação no Java e protecção na BD (CHECK, UNIQUE, FK, trigger) quando aplicável.
-- Explicar como os `PreparedStatement` evitam concatenação de SQL.
-- Demonstrar erros controlados (não apenas casos felizes).
-- Mostrar que não há valores falsos no Dashboard.
-
-## Revisão de autoria e colaboração
-
-Cada membro é responsável pelos próprios commits e alterações. Não inserir nomes de pessoas ou ferramentas como autor/coautor sem contribuição real; não incluir marcas ou menções a assistentes no código e na documentação final. Manter histórico íntegro da colaboração e respeitar os requisitos académicos aplicáveis.
+Cada membro é responsável pelos próprios commits. Não inserir nomes de pessoas ou ferramentas como autor/co-autor sem contribuição real, nem marcas de ferramentas no código ou na documentação final.

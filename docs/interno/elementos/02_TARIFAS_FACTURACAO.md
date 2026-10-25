@@ -1,75 +1,59 @@
-# Opção 2 — Tarifas e facturação
+# Membro 2 — Tarifas e facturas
 
-**Nível:** difícil  
+**Nível:** médio  
 **Responsável:** [NOME]  
-**Branch sugerida:** `feature/facturacao-tarifas`
+**Branch:** `facturacao`  
+**Estado:** feito. Testes unitários a passar e testado contra a BD (T06–T09, rollback, auditoria). Falta ligar ao `MainFrame` quando o Membro 6 o publicar.
 
-## Resultado esperado
+## Resultado
 
-Consultar/gerir tarifas sem sobreposição e emitir facturas correctas, com cálculos baseados nos dados reais do contador, contrato, data e tarifa.
+Ver e criar tarifas; emitir uma factura a partir de uma leitura, com o valor calculado correctamente; listar facturas.
 
-## Classes e ficheiros
+## Classes
 
 ```text
-model/Tarifa.java
-model/Fatura.java
-dao/TarifaDAO.java
-dao/FaturaDAO.java
-service/TarifaService.java
-service/FaturaService.java
-controller/TarifaController.java
-controller/FaturaController.java
-view/panels/TarifaPanel.java
-view/panels/FaturaPanel.java
-view/dialogs/TarifaDialog.java
-view/dialogs/EmissaoFaturaDialog.java
+model/Tarifa.java, model/Fatura.java
+dao/TarifaDAO.java, dao/FaturaDAO.java
+service/FaturaService.java            cálculos + emissão
+controller/TarifaController.java, controller/FaturaController.java
+view/TarifaPanel.java, view/TarifaDialog.java
+view/FaturaPanel.java, view/EmissaoFaturaDialog.java
+test/.../FaturaServiceTest.java
+util/Formatos.java                    ler/mostrar datas dd/mm/aaaa e números dos formulários (pode ser usado por todos)
+test/.../view/ExperimentarFacturacao  TEMPORÁRIO: abre Tarifas e Facturas sem MainFrame; apagar depois da integração
 ```
 
-## Regras do minimundo
+## Tarefas
 
-- **RN12–14:** `preco_por_m3 > 0`, `consumo_minimo > 0` (default 5); vigências por tipo sem sobreposição; procurar tarifa conforme `tipo_contrato` e `data_leitura`.
-- **RN15:** emitir apenas para contrato **e** contador activos.
-- **RN16:** máximo uma factura por `(id_contador, ano_referencia, mes_referencia)`.
-- **RN17–18:** leitura anterior = última leitura actual do contador, ou `leitura_inicial`; leitura actual >= anterior.
-- **RN19:** técnico da leitura tem cargo `tecnico_leitura` (trigger já existe).
-- **RN20:** `valor_base = max(leitura_atual - leitura_anterior, consumo_minimo) * preco_por_m3`.
-- **RN21:** conservar tarifa e valor-base históricos; não recalcular faturas antigas com preço novo.
-- **RN22:** vencimento no dia 10 do mês seguinte à **emissão**, não à leitura.
-- **RN23:** estado inicial `pendente`.
+### Tarifas
 
-## Tarefas ordenadas
+- [x] `TarifaPanel`: `JTable` com todas as tarifas (tipo, preço, mínimo, início, fim).
+- [x] Botão "Nova tarifa" (só ADMIN): tipo, preço, mínimo, data de início.
+- [x] Ao gravar, numa transacção (`DatabaseConnection.emTransaccao`): fechar a tarifa vigente do mesmo tipo (`data_fim = início_nova - 1 dia`) e inserir a nova. Recusar se a data de início não for posterior à da vigente.
+  - Porquê: o trigger do Anexo A recusa qualquer tarifa nova enquanto a vigente tiver `data_fim = NULL`.
+- [x] `TarifaDAO.buscarVigente(tipoContrato, data)`.
 
-- [ ] Mapear atributos de `tarifa` e `fatura` exactamente do Anexo A.
-- [ ] Implementar `TarifaDAO`: listar, pesquisar por tipo/data, criar tarifa, fechar vigência (com validação de RN13).
-- [ ] Implementar `TarifaPanel` e `TarifaDialog`; edição de preço histórico usada em facturas **proibida**.
-- [ ] Implementar `FaturaService` com `BigDecimal`, cálculo e testes unitários.
-- [ ] Acordar com Opção 3 obtenção de contrato e com Opção 4 contador activo/leitura inicial.
-- [ ] Acordar com Opção 5 listagem de técnicos `tecnico_leitura`.
-- [ ] Implementar `FaturaDAO` e emissão transaccional, tratando factura duplicada.
-- [ ] Implementar `FaturaPanel`/`EmissaoFaturaDialog`: seleccionar dados, simular valor-base, confirmar emissão e listar.
-- [ ] Consultar facturas por cliente/contrato, via caminho `fatura → contador → contrato → cliente`.
-- [ ] Testar RN12–23 e histórico de tarifas.
+### Facturas
 
-## Dados de `fatura` que deves persistir
+- [x] `EmissaoFaturaDialog`: escolher contrato activo → mostrar contador activo e **leitura anterior** → escrever mês/ano, data da leitura, leitura actual → escolher técnico (`tecnico_leitura`) → botão "Calcular" mostra consumo e valor → "Emitir".
+- [x] `FaturaService`:
+  - leitura anterior = última `leitura_atual` do contador (`ORDER BY ano_referencia DESC, mes_referencia DESC LIMIT 1`), senão `leitura_inicial`;
+  - `valor_base = max(actual - anterior, consumo_minimo) × preco_por_m3` (`BigDecimal`, 2 casas);
+  - `data_emissao` = hoje; `data_vencimento` = dia 10 do mês seguinte à emissão;
+  - validar: leitura actual ≥ anterior; existe tarifa vigente para o tipo do contrato na data da leitura.
+- [x] `FaturaDAO.inserir(...)` com `estado_fatura = 'pendente'`, `valor_multa = 0`.
+- [x] `FaturaPanel`: `JTable` com facturas (nº, cliente, contador, mês/ano, valor, estado).
+- [x] `FaturaDAO.listarPendentes()` e `buscarPorId(int)` para o Membro 3.
+- [x] JUnit: consumo normal, consumo abaixo do mínimo, leitura decrescente, vencimento (incluindo emissão em Dezembro → 10 de Janeiro).
 
-`mes_referencia`, `ano_referencia`, `data_leitura`, `leitura_anterior`, `leitura_atual`, `data_emissao`, `data_vencimento`, `valor_base`, `valor_multa`, `estado_fatura`, `id_contador`, `id_tarifa`, `id_funcionario`. `id_fatura` é auto-incrementado. `valor_pago`, `consumo_m3`, `valor_total`, `saldo_em_divida` **não são colunas do Anexo A**: o Anexo C muda isso; consultar a decisão da equipa.
+A BD já recusa: factura duplicada no mesmo mês, técnico que não é `tecnico_leitura`, leitura decrescente.
 
-## Dependências
+## Precisa de
 
-- Opção 1: JDBC e sessão.
-- Opção 3: contratos e integração com pagamentos (tua responsabilidade não é registar pagamentos).
-- Opção 4: contadores activos e leitura inicial.
-- Opção 5: técnicos de leitura.
-- Opção 6: menu e consistência visual.
+Membro 3: `ContratoDAO.listarActivos()`; Membro 4: `ContadorDAO.buscarActivoPorContrato()`; Membro 5: `FuncionarioDAO.listarPorCargo("tecnico_leitura")`. Até estarem em `main`, o `FaturaDAO` tem consultas próprias temporárias (secção "TEMPORÁRIO") sobre os dados do Anexo A.
 
-## Aceitação e testes
+## Demonstração
 
-- [ ] Tarifa vigente correcta por tipo/data e erro em caso de período sobreposto.
-- [ ] Exemplo: leitura anterior 120, actual 123, mínimo 5, preço 45 → `valor_base = 225.00 MT`.
-- [ ] Não emite factura para contrato cortado ou contador inactivo.
-- [ ] Não emite leitura decrescente, duplicada ou de técnico não autorizado.
-- [ ] Data de vencimento e valor-base persistidos correctamente.
-- [ ] A criação de uma tarifa nova **não altera** facturas antigas.
-- [ ] Interface não executa SQL e não bloqueia o utilizador em consultas demoradas.
+Criar uma tarifa nova e mostrar que a anterior foi fechada; emitir factura com leitura 120 → 123 (mínimo 5, preço 45) e mostrar `225.00 MT`; tentar leitura menor que a anterior.
 
-**Cuidado:** não criar classe/tabela `Leitura` autónoma e não implementar `PagamentoDAO` por conta própria.
+**Fora do âmbito:** editar tarifas, multas, estado `vencida`, simulação de várias tarifas por período.
